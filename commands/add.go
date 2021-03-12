@@ -11,9 +11,11 @@ import (
 	"os"
 )
 
+// TODO: move to somewhere else
 const gogotDir = ".gogot"
 const objectsDir = ".gogot/objects"
 const indexPath = ".gogot/index"
+const headPath = ".gogot/HEAD"
 
 // Add ...
 func Add(args []string) {
@@ -69,7 +71,7 @@ func addFile(path string) {
 	blobPath := fmt.Sprintf("%s/%s", blobDir, sha[2:])
 	createBlobFile(blobPath, blob)
 
-	appendToIndex(fmt.Sprintf("%s %s\n", sha, path))
+	appendToIndexFile(fmt.Sprintf("%s %s\n", sha, path))
 }
 
 func hashContent(content []byte) string {
@@ -101,7 +103,7 @@ func createBlobFile(path string, content []byte) {
 	file.Write(content)
 }
 
-func appendToIndex(index string) {
+func appendToIndexFile(index string) {
 	f, err := os.OpenFile(indexPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
