@@ -1,16 +1,13 @@
 package indextree
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func generateTree() IndexTree {
 	return IndexTree{
 		Name: ".",
-		Children: []IndexTree{
+		Children: []*IndexTree{
 			{Name: "commands",
-				Children: []IndexTree{
+				Children: []*IndexTree{
 					{Name: "add.go"},
 					{Name: "commit.go"},
 					{Name: "init.go"},
@@ -24,12 +21,12 @@ func generateTree() IndexTree {
 
 func TestChildWithName(t *testing.T) {
 	tree := generateTree()
-	commandsChild := tree.ChildWithName("commands")
+	commandsChild := tree.FindChildByName("commands")
 	if commandsChild == nil {
 		t.Error("Expected ChildWithName to return commands, returned nil")
 	}
 
-	root := tree.ChildWithName(".")
+	root := tree.FindChildByName(".")
 	if root == nil {
 		t.Error("Expected ChildWithName to return root, returned nil")
 	}
@@ -38,25 +35,22 @@ func TestChildWithName(t *testing.T) {
 func TestAddRootFilePath(t *testing.T) {
 	tree := generateTree()
 	tree.AddPath("./go.mod", "sha")
-	// fmt.Println(tree)
 
-	modFile := tree.ChildWithName("go.mod")
+	modFile := tree.FindChildByName("go.mod")
 	if modFile == nil {
 		t.Error("Expected modFile to not be nil")
 	}
-
-	fmt.Println(tree)
 }
 
 func TestAddNestedFilePath(t *testing.T) {
 	tree := generateTree()
 	tree.AddPath("./indextree/tree.go", "sha")
-	indextree := tree.ChildWithName("indextree")
+	indextree := tree.FindChildByName("indextree")
 	if indextree == nil {
 		t.Error("Expected indextree to not be nil")
 	}
 
-	treeFile := indextree.ChildWithName("tree.go")
+	treeFile := indextree.FindChildByName("tree.go")
 	if treeFile == nil {
 		t.Error("Expected treeFile to not be nil")
 	}
@@ -65,9 +59,8 @@ func TestAddNestedFilePath(t *testing.T) {
 func TestAddFileInExistingPath(t *testing.T) {
 	tree := generateTree()
 	tree.AddPath("./commands/remote.go", "sha")
-	fmt.Println(tree)
 
-	remoteFile := tree.ChildWithName("remote.go")
+	remoteFile := tree.FindChildByName("remote.go")
 	if remoteFile == nil {
 		t.Error("Expected remoteFile to not be nil")
 	}
