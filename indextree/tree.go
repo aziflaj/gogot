@@ -43,33 +43,31 @@ func (t *IndexTree) ChildWithName(name string) *IndexTree {
 // AddPath ...
 func (t *IndexTree) AddPath(path string, sha string) {
 	splitPath := strings.Split(path, "/")
-	// fmt.Println(splitPath)
-
 	for idx, pathPart := range splitPath {
-		// fmt.Println("pathPart: " + pathPart)
+		fmt.Println("pathPart: " + pathPart)
 
 		if t.Name == "" {
-			// fmt.Println("Root with no name, adding " + pathPart + " as root")
+			fmt.Println("Root with no name, adding " + pathPart + " as root")
 			t.Name = pathPart
 		} else if child := t.ChildWithName(pathPart); child != nil {
 			restOfPath := strings.Split(path, pathPart+"/")
 			// fmt.Println("Found child " + pathPart + ", adding " + restOfPath[1] + " to " + child.Name)
-			// fmt.Println(path, pathPart, restOfPath[1])
+			fmt.Println(path, pathPart, restOfPath[1])
 			child.AddPath(restOfPath[1], sha)
 			return
 		} else if idx < len(splitPath)-1 {
-			// fmt.Println("Appending non-leaf child " + pathPart)
+			fmt.Println("Appending non-leaf child " + pathPart)
 			child := NewTreeWithName(pathPart)
 			child.AddPath(path, sha)
 			t.Children = append(t.Children, *child)
 			return
 		} else {
-			// fmt.Println("Appending last child (leaf) " + pathPart)
+			fmt.Println("Appending last child (leaf) " + pathPart + " in " + t.Name)
 			t.Children = append(t.Children, IndexTree{Name: pathPart, Sha: sha})
 		}
 	}
 
-	// fmt.Printf("\n\n\n")
+	fmt.Printf("\n\n\n")
 }
 
 func (t IndexTree) String() string {
@@ -80,19 +78,23 @@ func (t IndexTree) String() string {
 	var builder strings.Builder
 
 	if len(t.Children) == 0 {
-		builder.WriteString(fmt.Sprintf("Node '%s' with no children\n", t.Name))
+		builder.WriteString(fmt.Sprintf("* '%s': no children\n", t.Name))
 		return builder.String()
 	}
 
 	var childrenNames []string
+	builder.WriteString(fmt.Sprintf("* %s: \n", t.Name))
 	for _, child := range t.Children {
 		childrenNames = append(childrenNames, child.Name)
+		builder.WriteString(fmt.Sprintf("    -> %s (%s): \n", child.Name, child.Sha))
 	}
 
-	builder.WriteString(fmt.Sprintf("Node '%s' with %d children: %v\n", t.Name, len(childrenNames), childrenNames))
+	// builder.WriteString(fmt.Sprintf("Node '%s' with %d children: %v\n", t.Name, len(childrenNames), childrenNames))
 	for _, child := range t.Children {
 		builder.WriteString(child.String())
 	}
 
 	return builder.String()
 }
+
+// func

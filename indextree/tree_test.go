@@ -51,8 +51,6 @@ func TestAddRootFilePath(t *testing.T) {
 func TestAddNestedFilePath(t *testing.T) {
 	tree := generateTree()
 	tree.AddPath("./indextree/tree.go", "sha")
-	// fmt.Println(tree)
-
 	indextree := tree.ChildWithName("indextree")
 	if indextree == nil {
 		t.Error("Expected indextree to not be nil")
@@ -60,6 +58,17 @@ func TestAddNestedFilePath(t *testing.T) {
 
 	treeFile := indextree.ChildWithName("tree.go")
 	if treeFile == nil {
-		t.Error("Expected tree to not be nil")
+		t.Error("Expected treeFile to not be nil")
+	}
+}
+
+func TestAddFileInExistingPath(t *testing.T) {
+	tree := generateTree()
+	tree.AddPath("./commands/remote.go", "sha")
+	fmt.Println(tree)
+
+	remoteFile := tree.ChildWithName("remote.go")
+	if remoteFile == nil {
+		t.Error("Expected remoteFile to not be nil")
 	}
 }
