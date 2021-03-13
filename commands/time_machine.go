@@ -21,6 +21,10 @@ func TimeMachine(args []string) {
 	filePath := args[1]
 
 	treeHash, _, _ := readCommitObjectContent(commitID)
+	readObject(treeHash, filePath)
+}
+
+func readObject(treeHash string, filePath string) {
 	result := readObjectContent(treeHash)
 
 	scanner := bufio.NewScanner(strings.NewReader(result))
@@ -36,8 +40,8 @@ func TimeMachine(args []string) {
 			fmt.Println(result)
 		} else if objectType == "tree" && strings.HasPrefix(filePath, objectName) {
 			// found the dir
-			pathWithoutPrefix := strings.Split(filePath, objectName)[1]
-			TimeMachine([]string{pathWithoutPrefix, hash})
+			pathWithoutPrefix := strings.Split(filePath, objectName+"/")[1]
+			readObject(hash, pathWithoutPrefix)
 		}
 	}
 }
