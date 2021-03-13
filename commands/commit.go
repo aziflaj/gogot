@@ -88,7 +88,7 @@ func updateRef(sha string) {
 		os.Exit(1)
 	}
 
-	branchFile.WriteString(sha)
+	branchFile.WriteString(sha + "\n")
 	branchFile.Close()
 }
 
@@ -106,7 +106,7 @@ func currentUser() string {
 		os.Exit(1)
 	}
 
-	return out.String()
+	return strings.Split(out.String(), "\n")[0]
 }
 
 func currentRef() string {

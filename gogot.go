@@ -22,6 +22,8 @@ func main() {
 		commands.Add(args)
 	case "commit":
 		commands.Commit(args)
+	case "log":
+		commands.Log(args)
 	default:
 		fmt.Printf("Unknown command: %v\n", command)
 		os.Exit(1)
