@@ -10,7 +10,7 @@ import (
 // IndexTree ...
 type IndexTree struct {
 	Name     string
-	Sha      string
+	Hash     string
 	Children []*IndexTree
 }
 
@@ -21,10 +21,10 @@ func BuildFromFile(file *os.File) *IndexTree {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		splitLine := strings.Split(scanner.Text(), " ")
-		sha := splitLine[0]
+		hash := splitLine[0]
 		path := splitLine[1]
 
-		tree.AddPath(path, sha)
+		tree.AddPath(path, hash)
 	}
 
 	return tree
@@ -58,7 +58,7 @@ func (t *IndexTree) FindChildByName(name string) *IndexTree {
 }
 
 // AddPath ...
-func (t *IndexTree) AddPath(path string, sha string) {
+func (t *IndexTree) AddPath(path string, hash string) {
 	splitPath := strings.Split(path, "/")
 	for idx, pathPart := range splitPath {
 		// fmt.Println("pathPart: " + pathPart)
@@ -70,17 +70,17 @@ func (t *IndexTree) AddPath(path string, sha string) {
 			restOfPath := strings.Split(path, pathPart+"/")
 			// fmt.Println("Found child " + pathPart + ", adding " + restOfPath[1] + " to " + child.Name)
 			// fmt.Println(path, pathPart, restOfPath[1])
-			child.AddPath(restOfPath[1], sha)
+			child.AddPath(restOfPath[1], hash)
 			return
 		} else if idx < len(splitPath)-1 {
 			// fmt.Println("Appending non-leaf child " + pathPart)
 			child := NewTreeWithName(pathPart)
-			child.AddPath(path, sha)
+			child.AddPath(path, hash)
 			t.Children = append(t.Children, child)
 			return
 		} else {
 			// fmt.Println("Appending last child (leaf) " + pathPart + " in " + t.Name)
-			t.Children = append(t.Children, &IndexTree{Name: pathPart, Sha: sha})
+			t.Children = append(t.Children, &IndexTree{Name: pathPart, Hash: hash})
 		}
 	}
 
@@ -103,7 +103,7 @@ func (t IndexTree) String() string {
 	builder.WriteString(fmt.Sprintf("* %s: \n", t.Name))
 	for _, child := range t.Children {
 		childrenNames = append(childrenNames, child.Name)
-		builder.WriteString(fmt.Sprintf("    -> %s (%s): \n", child.Name, child.Sha))
+		builder.WriteString(fmt.Sprintf("    -> %s (%s): \n", child.Name, child.Hash))
 	}
 
 	for _, child := range t.Children {

@@ -21,9 +21,9 @@ func Commit(args []string) {
 	}
 
 	indexTree := buildIndexTree()
-	rootSha := buildObjectTree("root", *indexTree)
-	commitSha := buildCommit(rootSha, strings.Join(args, " "))
-	updateRef(commitSha)
+	rootHash := buildObjectTree("root", *indexTree)
+	commitHash := buildCommit(rootHash, strings.Join(args, " "))
+	updateRef(commitHash)
 	clearIndex()
 }
 
@@ -50,18 +50,18 @@ func buildObjectTree(name string, tree index_tree.IndexTree) string {
 	defer object.FlushAndClose()
 
 	for _, child := range tree.Children {
-		if child.Sha != "" { // is a file
+		if child.Hash != "" { // is a file
 			object.AddBlob(child)
 		} else { // is a dir
-			dirSha := buildObjectTree(child.Name, *child)
-			object.AddTree(child, dirSha)
+			dirHash := buildObjectTree(child.Name, *child)
+			object.AddTree(child, dirHash)
 		}
 	}
 
-	return object.Sha
+	return object.Hash
 }
 
-func buildCommit(treeSha string, commitMsg string) string {
+func buildCommit(treeHash string, commitMsg string) string {
 	committer := currentUser()
 	commit, err := gogot_object.CreateFromString(committer)
 	if err != nil {
@@ -71,14 +71,14 @@ func buildCommit(treeSha string, commitMsg string) string {
 
 	defer commit.FlushAndClose()
 
-	commit.Write(fmt.Sprintf("tree %s\n", treeSha))
+	commit.Write(fmt.Sprintf("tree %s\n", treeHash))
 	commit.Write(fmt.Sprintf("author %s\n", committer))
 	commit.Write(fmt.Sprintf("\n%s\n", commitMsg))
 
-	return commit.Sha
+	return commit.Hash
 }
 
-func updateRef(sha string) {
+func updateRef(hash string) {
 	ref := currentRef()
 	branchPath := fmt.Sprintf("%s/%s", gogotDir, ref)
 
@@ -88,7 +88,7 @@ func updateRef(sha string) {
 		os.Exit(1)
 	}
 
-	branchFile.WriteString(sha + "\n")
+	branchFile.WriteString(hash + "\n")
 	branchFile.Close()
 }
 

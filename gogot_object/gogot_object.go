@@ -16,18 +16,18 @@ const indexPath = ".gogot/index"
 const headPath = ".gogot/HEAD"
 
 type GogotObject struct {
-	Sha        string
+	Hash       string
 	ObjectFile os.File
 }
 
 func CreateFromString(str string) (*GogotObject, error) {
-	sha := hashContent([]byte(time.Now().String() + str))
-	file, err := createAndOpenFile(sha)
+	hash := hashContent([]byte(time.Now().String() + str))
+	file, err := createAndOpenFile(hash)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GogotObject{Sha: sha, ObjectFile: *file}, nil
+	return &GogotObject{Hash: hash, ObjectFile: *file}, nil
 }
 
 func (obj *GogotObject) Write(str string) {
@@ -35,21 +35,21 @@ func (obj *GogotObject) Write(str string) {
 }
 
 func (obj *GogotObject) AddBlob(blob *index_tree.IndexTree) {
-	obj.ObjectFile.WriteString(fmt.Sprintf("blob %s %s\n", blob.Sha, blob.Name))
+	obj.ObjectFile.WriteString(fmt.Sprintf("blob %s %s\n", blob.Hash, blob.Name))
 }
 
-func (obj *GogotObject) AddTree(tree *index_tree.IndexTree, sha string) {
-	obj.ObjectFile.WriteString(fmt.Sprintf("tree %s %s\n", sha, tree.Name))
+func (obj *GogotObject) AddTree(tree *index_tree.IndexTree, hash string) {
+	obj.ObjectFile.WriteString(fmt.Sprintf("tree %s %s\n", hash, tree.Name))
 }
 
 func (obj *GogotObject) FlushAndClose() {
 	obj.ObjectFile.Close()
 }
 
-func createAndOpenFile(sha string) (file *os.File, err error) {
-	objectDirPath := fmt.Sprintf("%s/%s", objectsDir, sha[0:2])
+func createAndOpenFile(hash string) (file *os.File, err error) {
+	objectDirPath := fmt.Sprintf("%s/%s", objectsDir, hash[0:2])
 	os.Mkdir(objectDirPath, 0755)
-	objectPath := fmt.Sprintf("%s/%s", objectDirPath, sha[2:])
+	objectPath := fmt.Sprintf("%s/%s", objectDirPath, hash[2:])
 	file, err = os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	return
 }

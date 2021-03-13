@@ -24,6 +24,7 @@ const (
 )
 
 // Add ...
+// TODO: Can't add a single file. Make a fix
 func Add(args []string) {
 	if len(args) < 1 {
 		fmt.Println("Usage: gogot add [FILE1] [FILE2] ...")
@@ -75,16 +76,16 @@ func addFile(path string) {
 		os.Exit(1)
 	}
 
-	sha := hashContent(content)
+	hash := hashContent(content)
 	blob := compressContent(content)
 
-	blobDir := fmt.Sprintf("%s/%s", objectsDir, sha[0:2])
+	blobDir := fmt.Sprintf("%s/%s", objectsDir, hash[0:2])
 	os.Mkdir(blobDir, 0755)
 
-	blobPath := fmt.Sprintf("%s/%s", blobDir, sha[2:])
+	blobPath := fmt.Sprintf("%s/%s", blobDir, hash[2:])
 	createBlobFile(blobPath, blob)
 
-	appendToIndexFile(fmt.Sprintf("%s %s\n", sha, path))
+	appendToIndexFile(fmt.Sprintf("%s %s\n", hash, path))
 }
 
 func hashContent(content []byte) string {

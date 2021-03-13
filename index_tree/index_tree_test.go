@@ -34,7 +34,7 @@ func TestChildWithName(t *testing.T) {
 
 func TestAddRootFilePath(t *testing.T) {
 	tree := generateTree()
-	tree.AddPath("./go.mod", "sha")
+	tree.AddPath("./go.mod", "hash")
 
 	modFile := tree.FindChildByName("go.mod")
 	if modFile == nil {
@@ -44,7 +44,7 @@ func TestAddRootFilePath(t *testing.T) {
 
 func TestAddNestedFilePath(t *testing.T) {
 	tree := generateTree()
-	tree.AddPath("./indextree/tree.go", "sha")
+	tree.AddPath("./indextree/tree.go", "hash")
 	indextree := tree.FindChildByName("indextree")
 	if indextree == nil {
 		t.Error("Expected indextree to not be nil")
@@ -58,7 +58,7 @@ func TestAddNestedFilePath(t *testing.T) {
 
 func TestAddFileInExistingPath(t *testing.T) {
 	tree := generateTree()
-	tree.AddPath("./commands/remote.go", "sha")
+	tree.AddPath("./commands/remote.go", "hash")
 
 	remoteFile := tree.FindChildByName("remote.go")
 	if remoteFile == nil {

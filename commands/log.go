@@ -44,8 +44,8 @@ func commitsList(file *os.File) []string {
 	return commits
 }
 
-func readCommitObjectContent(sha string) (treeHash string, author string, message string) {
-	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, sha[0:2], sha[2:]))
+func readCommitObjectContent(hash string) (treeHash string, author string, message string) {
+	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -65,8 +65,8 @@ func readCommitObjectContent(sha string) (treeHash string, author string, messag
 	return
 }
 
-func readObjectContent(sha string) string {
-	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, sha[0:2], sha[2:]))
+func readObjectContent(hash string) string {
+	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -83,8 +83,8 @@ func readObjectContent(sha string) string {
 	return strings.Join(contents, "\n")
 }
 
-func readBlobContent(sha string) []byte {
-	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/objects/%s/%s", gogotDir, sha[0:2], sha[2:]))
+func readBlobContent(hash string) []byte {
+	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
