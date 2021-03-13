@@ -1,7 +1,7 @@
 # Gogot
 ### Git, but in Go
 
-Following [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-git-in-ruby) titled **"Rebuilding Git in Ruby"**, I made a similar program but in Go. Not really a full copy of Git, rather more like an attempt to understand how Git stores and manages file contents. The commands supported (so far) are these:
+Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-git-in-ruby) titled **"Rebuilding Git in Ruby"**, I made a similar program but in Go. Not really a full copy of Git, rather more like an attempt to understand how Git stores and manages file contents. The commands supported (so far) are these:
 
 - [x] `gogot init [PATH]` - Similar to `git init [PATH]`
 - [x] `gogot add [FILE1] [FILE2] [PATH]` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
