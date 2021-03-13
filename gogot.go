@@ -24,6 +24,8 @@ func main() {
 		commands.Commit(args)
 	case "log":
 		commands.Log(args)
+	case "time-machine":
+		commands.TimeMachine(args)
 	default:
 		fmt.Printf("Unknown command: %v\n", command)
 		os.Exit(1)

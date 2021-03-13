@@ -3,6 +3,7 @@ package commands
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -18,7 +19,7 @@ func Log(args []string) {
 	commits := commitsList(commitsFile)
 	for _, commit := range commits {
 		_, author, message := readCommitObjectContent(commit)
-		fmt.Printf("%.12s    (author %s)    %s\n", commit, author, message)
+		fmt.Printf("%s    (author %s)    %s\n", commit, author, message)
 	}
 }
 
@@ -62,4 +63,32 @@ func readCommitObjectContent(sha string) (treeHash string, author string, messag
 	author = strings.Split(contents[1], " ")[1]
 	message = contents[3]
 	return
+}
+
+func readObjectContent(sha string) string {
+	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, sha[0:2], sha[2:]))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	scanner := bufio.NewScanner(objectFile)
+	scanner.Split(bufio.ScanLines)
+	var contents []string
+	for scanner.Scan() {
+		contents = append(contents, scanner.Text())
+	}
+	objectFile.Close()
+
+	return strings.Join(contents, "\n")
+}
+
+func readBlobContent(sha string) []byte {
+	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/objects/%s/%s", gogotDir, sha[0:2], sha[2:]))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	return objectFile
 }
