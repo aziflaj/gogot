@@ -1,7 +1,9 @@
-package indextree
+package index_tree
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -12,8 +14,20 @@ type IndexTree struct {
 	Children []*IndexTree
 }
 
-func New() *IndexTree {
-	return &IndexTree{}
+func BuildFromFile(file *os.File) *IndexTree {
+	tree := &IndexTree{}
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		splitLine := strings.Split(scanner.Text(), " ")
+		sha := splitLine[0]
+		path := splitLine[1]
+
+		tree.AddPath(path, sha)
+	}
+
+	return tree
 }
 
 func NewTreeWithName(name string) *IndexTree {

@@ -8,9 +8,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
-	"github.com/aziflaj/gogot/indextree"
+	"github.com/aziflaj/gogot/gogot_object"
+	"github.com/aziflaj/gogot/index_tree"
 )
 
 // Commit ...
@@ -27,86 +27,89 @@ func Commit(args []string) {
 	clearIndex()
 }
 
-func buildIndexTree() *indextree.IndexTree {
-	indexTree := indextree.New()
-
+func buildIndexTree() *index_tree.IndexTree {
 	indexFile, err := os.Open(indexPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	defer indexFile.Close()
-	scanner := bufio.NewScanner(indexFile)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		splitLine := strings.Split(scanner.Text(), " ")
-		sha := splitLine[0]
-		path := splitLine[1]
-		indexTree.AddPath(path, sha)
-	}
+	indexTree := index_tree.BuildFromFile(indexFile)
+	indexFile.Close()
 
 	return indexTree
 }
 
-func buildObjectTree(name string, tree indextree.IndexTree) string {
-	sha := hashContent([]byte(time.Now().String() + name))
-
-	objectDirPath := fmt.Sprintf("%s/%s", objectsDir, sha[0:2])
-	os.Mkdir(objectDirPath, 0755)
-	objectPath := fmt.Sprintf("%s/%s", objectDirPath, sha[2:])
-	f, err := os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func buildObjectTree(name string, tree index_tree.IndexTree) string {
+	object, err := gogot_object.CreateFromString(name)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 
-	defer f.Close()
+	defer object.FlushAndClose()
 
 	for _, child := range tree.Children {
 		if child.Sha != "" { // is a file
-			f.WriteString(fmt.Sprintf("blob %s %s\n", child.Sha, child.Name))
+			object.AddBlob(child)
 		} else { // is a dir
 			dirSha := buildObjectTree(child.Name, *child)
-			f.WriteString(fmt.Sprintf("tree %s %s\n", dirSha, child.Name))
+			object.AddTree(child, dirSha)
 		}
 	}
 
-	return sha
+	return object.Sha
 }
 
 func buildCommit(treeSha string, commitMsg string) string {
+	committer := currentUser()
+	commit, err := gogot_object.CreateFromString(committer)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	defer commit.FlushAndClose()
+
+	commit.Write(fmt.Sprintf("tree %s\n", treeSha))
+	commit.Write(fmt.Sprintf("author %s\n", committer))
+	commit.Write(fmt.Sprintf("\n%s\n", commitMsg))
+
+	return commit.Sha
+}
+
+func updateRef(sha string) {
+	ref := currentRef()
+	branchPath := fmt.Sprintf("%s/%s", gogotDir, ref)
+
+	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	branchFile.WriteString(sha)
+	branchFile.Close()
+}
+
+func clearIndex() error {
+	return os.Truncate(indexPath, 0)
+}
+
+func currentUser() string {
 	whoami := exec.Command("whoami")
 	var out bytes.Buffer
 	whoami.Stdout = &out
 	err := whoami.Run()
 	if err != nil {
-		fmt.Println("WTF?!")
+		fmt.Println("Can't read user name")
 		os.Exit(1)
 	}
 
-	committer := out.String()
-	sha := hashContent([]byte(time.Now().String() + committer))
-
-	objectDirPath := fmt.Sprintf("%s/%s", objectsDir, sha[0:2])
-	os.Mkdir(objectDirPath, 0755)
-	objectPath := fmt.Sprintf("%s/%s", objectDirPath, sha[2:])
-	f, err := os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	defer f.Close()
-
-	f.WriteString(fmt.Sprintf("tree %s\n", treeSha))
-	f.WriteString(fmt.Sprintf("author %s\n", committer))
-	f.WriteString(fmt.Sprintf("\n%s\n", commitMsg))
-
-	return sha
+	return out.String()
 }
 
-func updateRef(sha string) {
+func currentRef() string {
 	headFile, err := os.Open(headPath)
 	if err != nil {
 		fmt.Println(err)
@@ -121,20 +124,7 @@ func updateRef(sha string) {
 	}
 	headFile.Close()
 
-	splitContent := strings.Split(string(content), "/")
-	branchName := splitContent[len(splitContent)-1]
-	branchPath := fmt.Sprintf("%s/%s", gogotDir, branchName)
+	ref := strings.Split(string(content), ": ")[1]
 
-	f, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	defer f.Close()
-	f.WriteString(sha)
-}
-
-func clearIndex() error {
-	return os.Truncate(indexPath, 0)
+	return ref
 }

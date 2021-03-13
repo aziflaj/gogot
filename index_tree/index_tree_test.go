@@ -1,4 +1,4 @@
-package indextree
+package index_tree
 
 import "testing"
 
