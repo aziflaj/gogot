@@ -47,4 +47,8 @@ DbUW6I6h3xfLlvDbqweqlDYcRuM=    (author aldo)    Greetings extended...
 $ ./gogot time-machine 7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0= hello.txt
 Howdy y'all
 
+$ cat hello.txt
+Howdy y'all
+How's everyone doin'?
+
 ```
