@@ -20,7 +20,7 @@ $ echo "How's everyone doin'?" >> hello.txt
 $ ./gogot add .
 $ ./gogot commit Greetings extended...
 $ ./gogot log
-Logs on branch master
+Logs on branch main
 jqF2823Ila5NwJHzU-4K40LpaLM=    (author aldo)    Initial commit
 7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0=    (author aldo)    Greetings in hello.txt
 DbUW6I6h3xfLlvDbqweqlDYcRuM=    (author aldo)    Greetings extended...

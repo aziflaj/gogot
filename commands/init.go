@@ -68,7 +68,7 @@ func initializeHead(path string) {
 	}
 	defer file.Close()
 
-	file.WriteString("ref: refs/heads/master")
+	file.WriteString("ref: refs/heads/main")
 }
 
 func cleanup(path string) {
