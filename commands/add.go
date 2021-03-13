@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bufio"
 	"bytes"
 	"compress/zlib"
 	"crypto/sha1"
@@ -9,13 +10,18 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 )
 
 // TODO: move to somewhere else
-const gogotDir = ".gogot"
-const objectsDir = ".gogot/objects"
-const indexPath = ".gogot/index"
-const headPath = ".gogot/HEAD"
+const (
+	gogotDir   = ".gogot"
+	objectsDir = ".gogot/objects"
+	indexPath  = ".gogot/index"
+	headPath   = ".gogot/HEAD"
+
+	gogotIgnore = ".gogotignore"
+)
 
 // Add ...
 func Add(args []string) {
@@ -29,29 +35,36 @@ func Add(args []string) {
 		os.Exit(1)
 	}
 
-	for _, path := range args {
-		addRecursive(path)
+	for _, filepath := range args {
+		addRecursive(filepath)
 	}
 }
 
-func addRecursive(path string) {
-	info, err := os.Stat(path)
+func addRecursive(filepath string) {
+	patterns := ignoredPatterns()
+	for _, pattern := range patterns {
+		if match, _ := path.Match(pattern, filepath); match {
+			return
+		}
+	}
+
+	info, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
-		fmt.Printf("File doesn't exist: %v\n", path)
+		fmt.Printf("File doesn't exist: %v\n", filepath)
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	if info.IsDir() {
-		files, _ := ioutil.ReadDir(path)
+		files, _ := ioutil.ReadDir(filepath)
 		for _, file := range files {
 			if file.Name() == gogotDir {
 				continue
 			}
-			addRecursive(fmt.Sprintf("%s/%s", path, file.Name()))
+			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
 		}
 	} else {
-		addFile(path)
+		addFile(filepath)
 	}
 }
 
@@ -114,4 +127,20 @@ func appendToIndexFile(index string) {
 	if _, err := f.WriteString(index); err != nil {
 		log.Println(err)
 	}
+}
+
+func ignoredPatterns() (paths []string) {
+	objectFile, err := os.Open(gogotIgnore)
+	if err != nil {
+		return
+	}
+
+	scanner := bufio.NewScanner(objectFile)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		paths = append(paths, scanner.Text())
+	}
+	objectFile.Close()
+
+	return
 }
