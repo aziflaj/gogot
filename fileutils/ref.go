@@ -1,14 +1,12 @@
-package core
+package fileutils
 
 import (
 	"io/ioutil"
 	"strings"
-
-	"github.com/aziflaj/gogot/fileutils"
 )
 
 func CurrentRef() (string, error) {
-	content, err := ioutil.ReadFile(fileutils.HeadFilePath)
+	content, err := ioutil.ReadFile(HeadFilePath)
 	if err != nil {
 		return "", err
 	}

@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/fileutils"
 )
 
@@ -27,7 +26,7 @@ func Log(args []string) {
 }
 
 func commitsFile() *os.File {
-	currentBranchPath, err := core.CurrentRef()
+	currentBranchPath, err := fileutils.CurrentRef()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
