@@ -10,8 +10,6 @@ import (
 
 	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/files"
-	"github.com/aziflaj/gogot/gogot_object"
-	"github.com/aziflaj/gogot/index_tree"
 )
 
 // Commit ...
@@ -28,21 +26,21 @@ func Commit(args []string) {
 	clearIndex()
 }
 
-func buildIndexTree() *index_tree.IndexTree {
+func buildIndexTree() *core.IndexTree {
 	indexFile, err := os.Open(files.IndexFilePath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	indexTree := index_tree.BuildFromFile(indexFile)
+	indexTree := core.BuildIndexFromFile(indexFile)
 	indexFile.Close()
 
 	return indexTree
 }
 
-func buildObjectTree(name string, tree index_tree.IndexTree) string {
-	object, err := gogot_object.CreateFromString(name)
+func buildObjectTree(name string, tree core.IndexTree) string {
+	object, err := core.CreateObjectFromString(name)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)

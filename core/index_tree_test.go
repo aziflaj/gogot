@@ -1,4 +1,4 @@
-package index_tree
+package core
 
 import "testing"
 

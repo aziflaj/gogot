@@ -1,13 +1,11 @@
-package gogot_object
+package core
 
 import (
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/files"
-	"github.com/aziflaj/gogot/index_tree"
 )
 
 type GogotObject struct {
@@ -15,8 +13,8 @@ type GogotObject struct {
 	ObjectFile os.File
 }
 
-func CreateFromString(str string) (*GogotObject, error) {
-	hash := core.HashBytes([]byte(time.Now().String() + str))
+func CreateObjectFromString(str string) (*GogotObject, error) {
+	hash := HashBytes([]byte(time.Now().String() + str))
 	file, err := createAndOpenFile(hash)
 	if err != nil {
 		return nil, err
@@ -29,11 +27,11 @@ func (obj *GogotObject) Write(str string) {
 	obj.ObjectFile.WriteString(str)
 }
 
-func (obj *GogotObject) AddBlob(blob *index_tree.IndexTree) {
+func (obj *GogotObject) AddBlob(blob *IndexTree) {
 	obj.ObjectFile.WriteString(fmt.Sprintf("blob %s %s\n", blob.Hash, blob.Name))
 }
 
-func (obj *GogotObject) AddTree(tree *index_tree.IndexTree, hash string) {
+func (obj *GogotObject) AddTree(tree *IndexTree, hash string) {
 	obj.ObjectFile.WriteString(fmt.Sprintf("tree %s %s\n", hash, tree.Name))
 }
 

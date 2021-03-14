@@ -1,4 +1,4 @@
-package index_tree
+package core
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ type IndexTree struct {
 	Children []*IndexTree
 }
 
-func BuildFromFile(file *os.File) *IndexTree {
+func BuildIndexFromFile(file *os.File) *IndexTree {
 	tree := &IndexTree{}
 
 	scanner := bufio.NewScanner(file)
