@@ -2,12 +2,11 @@ package commands
 
 import (
 	"bufio"
-	"bytes"
-	"compress/zlib"
 	"fmt"
-	"io"
 	"os"
 	"strings"
+
+	"github.com/aziflaj/gogot/core"
 )
 
 // TimeMachine ...
@@ -36,7 +35,7 @@ func readObject(treeHash string, filePath string) {
 		if objectType == "blob" && filePath == objectName {
 			// found the file
 			blob := readBlobContent(hash)
-			result = decompressContent(blob)
+			result = core.DecompressBytes(blob)
 			fmt.Println(result)
 		} else if objectType == "tree" && strings.HasPrefix(filePath, objectName) {
 			// found the dir
@@ -44,18 +43,4 @@ func readObject(treeHash string, filePath string) {
 			readObject(hash, pathWithoutPrefix)
 		}
 	}
-}
-
-func decompressContent(content []byte) string {
-	buffer := bytes.NewBuffer(content)
-	sb := new(strings.Builder)
-
-	reader, err := zlib.NewReader(buffer)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	io.Copy(sb, reader)
-
-	return sb.String()
 }

@@ -2,10 +2,6 @@ package commands
 
 import (
 	"bufio"
-	"bytes"
-	"compress/zlib"
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -73,8 +69,8 @@ func addFile(path string) {
 		os.Exit(1)
 	}
 
-	hash := hashContent(content)
-	blob := compressContent(content)
+	hash := core.HashBytes(content)
+	blob := core.CompressBytes(content)
 
 	blobDir := fmt.Sprintf("%s/%s", objectsDir, hash[0:2])
 	os.Mkdir(blobDir, 0755)
@@ -83,24 +79,6 @@ func addFile(path string) {
 	createBlobFile(blobPath, blob)
 
 	appendToIndexFile(fmt.Sprintf("%s %s\n", hash, path))
-}
-
-func hashContent(content []byte) string {
-	hasher := sha1.New()
-	hasher.Write(content)
-	sha1Bytes := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
-
-	return string(sha1Bytes)
-}
-
-func compressContent(content []byte) []byte {
-	var buffer bytes.Buffer
-
-	writer := zlib.NewWriter(&buffer)
-	writer.Write(content)
-	writer.Close()
-
-	return buffer.Bytes()
 }
 
 func createBlobFile(path string, content []byte) {

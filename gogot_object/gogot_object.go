@@ -1,8 +1,6 @@
 package gogot_object
 
 import (
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"time"
@@ -17,7 +15,7 @@ type GogotObject struct {
 }
 
 func CreateFromString(str string) (*GogotObject, error) {
-	hash := hashContent([]byte(time.Now().String() + str))
+	hash := core.HashBytes([]byte(time.Now().String() + str))
 	file, err := createAndOpenFile(hash)
 	if err != nil {
 		return nil, err
@@ -48,12 +46,4 @@ func createAndOpenFile(hash string) (file *os.File, err error) {
 	objectPath := fmt.Sprintf("%s/%s", objectDirPath, hash[2:])
 	file, err = os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	return
-}
-
-func hashContent(content []byte) string {
-	hasher := sha1.New()
-	hasher.Write(content)
-	sha1Bytes := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
-
-	return string(sha1Bytes)
 }
