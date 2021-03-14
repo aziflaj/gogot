@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aziflaj/gogot/core"
+	"github.com/aziflaj/gogot/files"
 	"github.com/aziflaj/gogot/index_tree"
 )
 
@@ -41,7 +42,7 @@ func (obj *GogotObject) FlushAndClose() {
 }
 
 func createAndOpenFile(hash string) (file *os.File, err error) {
-	objectDirPath := fmt.Sprintf("%s/%s", core.ObjectsDir, hash[0:2])
+	objectDirPath := fmt.Sprintf("%s/%s", files.ObjectsDir, hash[0:2])
 	os.Mkdir(objectDirPath, 0755)
 	objectPath := fmt.Sprintf("%s/%s", objectDirPath, hash[2:])
 	file, err = os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

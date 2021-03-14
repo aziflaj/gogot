@@ -9,16 +9,7 @@ import (
 	"path"
 
 	"github.com/aziflaj/gogot/core"
-)
-
-// TODO: move to somewhere else
-const (
-	gogotDir   = ".gogot"
-	objectsDir = ".gogot/objects"
-	indexPath  = ".gogot/index"
-	headPath   = ".gogot/HEAD"
-
-	gogotIgnore = ".gogotignore"
+	"github.com/aziflaj/gogot/files"
 )
 
 // Add ...
@@ -50,9 +41,9 @@ func addRecursive(filepath string) {
 	}
 
 	if info.IsDir() {
-		files, _ := ioutil.ReadDir(filepath)
-		for _, file := range files {
-			if file.Name() == gogotDir {
+		allFiles, _ := ioutil.ReadDir(filepath)
+		for _, file := range allFiles {
+			if file.Name() == files.GogotDir {
 				continue
 			}
 			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
@@ -72,7 +63,7 @@ func addFile(path string) {
 	hash := core.HashBytes(content)
 	blob := core.CompressBytes(content)
 
-	blobDir := fmt.Sprintf("%s/%s", objectsDir, hash[0:2])
+	blobDir := fmt.Sprintf("%s/%s", files.ObjectsDir, hash[0:2])
 	os.Mkdir(blobDir, 0755)
 
 	blobPath := fmt.Sprintf("%s/%s", blobDir, hash[2:])
@@ -93,7 +84,7 @@ func createBlobFile(path string, content []byte) {
 }
 
 func appendToIndexFile(index string) {
-	f, err := os.OpenFile(core.IndexFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(files.IndexFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
@@ -106,7 +97,7 @@ func appendToIndexFile(index string) {
 }
 
 func ignoredPatterns() (paths []string) {
-	objectFile, err := os.Open(core.GogotIgnore)
+	objectFile, err := os.Open(files.GogotIgnore)
 	if err != nil {
 		return
 	}

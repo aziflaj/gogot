@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/aziflaj/gogot/commands"
-	"github.com/aziflaj/gogot/core"
+	"github.com/aziflaj/gogot/files"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 
 	command, args := os.Args[1], os.Args[2:]
 
-	if _, err := os.Stat(core.GogotDir); os.IsNotExist(err) && command != "init" {
+	if _, err := os.Stat(files.GogotDir); os.IsNotExist(err) && command != "init" {
 		fmt.Println("Not a Gogot repository")
 		os.Exit(1)
 	}

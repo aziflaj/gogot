@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aziflaj/gogot/core"
+	"github.com/aziflaj/gogot/files"
 )
 
 // Init ...
@@ -18,7 +18,7 @@ func Init(args []string) {
 
 	fmt.Println("Initalizing new Gogot repo")
 
-	baseRepoPath := fmt.Sprintf("%s/%s", repoName, core.GogotDir)
+	baseRepoPath := fmt.Sprintf("%s/%s", repoName, files.GogotDir)
 	err := os.MkdirAll(baseRepoPath, 0755)
 	if err != nil {
 		fmt.Print(err)
@@ -34,12 +34,12 @@ func Init(args []string) {
 }
 
 func createObjectsDir() error {
-	infoDir := fmt.Sprintf("%s/info", core.ObjectsDir)
-	packDir := fmt.Sprintf("%s/pack", core.ObjectsDir)
+	infoDir := fmt.Sprintf("%s/info", files.ObjectsDir)
+	packDir := fmt.Sprintf("%s/pack", files.ObjectsDir)
 
 	var err error
 
-	err = os.MkdirAll(core.ObjectsDir, 0755)
+	err = os.MkdirAll(files.ObjectsDir, 0755)
 	err = os.MkdirAll(infoDir, 0755)
 	err = os.MkdirAll(packDir, 0755)
 
@@ -47,12 +47,12 @@ func createObjectsDir() error {
 }
 
 func createRefsDir() error {
-	headsDir := fmt.Sprintf("%s/heads", core.RefsDir)
-	tagsDir := fmt.Sprintf("%s/tags", core.RefsDir)
+	headsDir := fmt.Sprintf("%s/heads", files.RefsDir)
+	tagsDir := fmt.Sprintf("%s/tags", files.RefsDir)
 
 	var err error
 
-	err = os.MkdirAll(core.RefsDir, 0755)
+	err = os.MkdirAll(files.RefsDir, 0755)
 	err = os.MkdirAll(headsDir, 0755)
 	err = os.MkdirAll(tagsDir, 0755)
 
@@ -60,7 +60,7 @@ func createRefsDir() error {
 }
 
 func initializeHead() {
-	file, err := os.Create(core.HeadFilePath)
+	file, err := os.Create(files.HeadFilePath)
 	if err != nil {
 		cleanup()
 	}
@@ -71,6 +71,6 @@ func initializeHead() {
 
 func cleanup() {
 	fmt.Println("Something went wrong")
-	os.RemoveAll(core.GogotDir)
+	os.RemoveAll(files.GogotDir)
 	os.Exit(1)
 }
