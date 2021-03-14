@@ -15,16 +15,12 @@ type GogotObject struct {
 
 func CreateObjectFromString(str string) (*GogotObject, error) {
 	hash := HashBytes([]byte(time.Now().String() + str))
-	file, err := createAndOpenFile(hash)
+	file, err := fileutils.CreateAndOpenCommitFile(hash)
 	if err != nil {
 		return nil, err
 	}
 
 	return &GogotObject{Hash: hash, ObjectFile: *file}, nil
-}
-
-func (obj *GogotObject) Write(str string) {
-	obj.ObjectFile.WriteString(str)
 }
 
 func (obj *GogotObject) AddBlob(blob *IndexTree) {
@@ -37,12 +33,4 @@ func (obj *GogotObject) AddTree(tree *IndexTree, hash string) {
 
 func (obj *GogotObject) FlushAndClose() {
 	obj.ObjectFile.Close()
-}
-
-func createAndOpenFile(hash string) (file *os.File, err error) {
-	objectDirPath := fmt.Sprintf("%s/%s", fileutils.ObjectsDir, hash[0:2])
-	os.Mkdir(objectDirPath, 0755)
-	objectPath := fmt.Sprintf("%s/%s", objectDirPath, hash[2:])
-	file, err = os.OpenFile(objectPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	return
 }

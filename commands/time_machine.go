@@ -19,8 +19,12 @@ func TimeMachine(args []string) {
 	commitID := args[0]
 	filePath := args[1]
 
-	treeHash, _, _ := readCommitObjectContent(commitID)
-	readObject(treeHash, filePath)
+	commit, err := core.CommitObjectFromHash(commitID)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	readObject(commit.TreeHash, filePath)
 }
 
 func readObject(treeHash string, filePath string) {
@@ -35,7 +39,11 @@ func readObject(treeHash string, filePath string) {
 		if objectType == "blob" && filePath == objectName {
 			// found the file
 			blob := readBlobContent(hash)
-			result = core.DecompressBytes(blob)
+			result, err := core.DecompressBytes(blob)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 			fmt.Println(result)
 		} else if objectType == "tree" && strings.HasPrefix(filePath, objectName) {
 			// found the dir

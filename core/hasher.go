@@ -5,9 +5,7 @@ import (
 	"compress/zlib"
 	"crypto/sha1"
 	"encoding/base64"
-	"fmt"
 	"io"
-	"os"
 	"strings"
 )
 
@@ -29,16 +27,15 @@ func CompressBytes(content []byte) []byte {
 	return buffer.Bytes()
 }
 
-func DecompressBytes(content []byte) string {
+func DecompressBytes(content []byte) (string, error) {
 	buffer := bytes.NewBuffer(content)
 	sb := new(strings.Builder)
 
 	reader, err := zlib.NewReader(buffer)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return "", err
 	}
 	io.Copy(sb, reader)
 
-	return sb.String()
+	return sb.String(), nil
 }

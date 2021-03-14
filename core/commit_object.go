@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aziflaj/gogot/fileutils"
@@ -23,6 +24,21 @@ func NewCommitObject(treeHash string, author string, commitMsg string) *CommitOb
 		Author:   author,
 		Message:  commitMsg,
 	}
+}
+
+func CommitObjectFromHash(hash string) (*CommitObject, error) {
+	content, err := fileutils.ReadCommitContents(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	splitContent := strings.Split(content, "\n")
+	return &CommitObject{
+		Hash:     hash,
+		TreeHash: strings.Split(splitContent[0], "tree ")[1],
+		Author:   strings.Split(splitContent[1], "author ")[1],
+		Message:  splitContent[3],
+	}, nil
 }
 
 func (obj *CommitObject) Commit() error {
