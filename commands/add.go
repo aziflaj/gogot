@@ -11,6 +11,8 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"github.com/aziflaj/gogot/core"
 )
 
 // TODO: move to somewhere else
@@ -27,12 +29,7 @@ const (
 // TODO: Can't add a single file. Make a fix
 func Add(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot add [FILE1] [FILE2] ...")
-		os.Exit(1)
-	}
-
-	if _, err := os.Stat(gogotDir); os.IsNotExist(err) {
-		fmt.Println("Not a Gogot repository")
+		fmt.Println("Usage: gogot add <path1> [<path2>] ...")
 		os.Exit(1)
 	}
 
@@ -118,7 +115,7 @@ func createBlobFile(path string, content []byte) {
 }
 
 func appendToIndexFile(index string) {
-	f, err := os.OpenFile(indexPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(core.IndexFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
@@ -131,7 +128,7 @@ func appendToIndexFile(index string) {
 }
 
 func ignoredPatterns() (paths []string) {
-	objectFile, err := os.Open(gogotIgnore)
+	objectFile, err := os.Open(core.GogotIgnore)
 	if err != nil {
 		return
 	}

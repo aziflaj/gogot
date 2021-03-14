@@ -13,7 +13,7 @@ import (
 // TimeMachine ...
 func TimeMachine(args []string) {
 	if len(args) < 2 {
-		fmt.Println("Usage: gogot time-machine [COMMIT-ID] [FILE-PATH]")
+		fmt.Println("Usage: gogot time-machine <commit-id> <file-path>")
 		os.Exit(1)
 	}
 

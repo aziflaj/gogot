@@ -3,12 +3,14 @@ package commands
 import (
 	"fmt"
 	"os"
+
+	"github.com/aziflaj/gogot/core"
 )
 
 // Init ...
 func Init(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot init [PATH]")
+		fmt.Println("Usage: gogot init <path>")
 		os.Exit(1)
 	}
 
@@ -16,7 +18,7 @@ func Init(args []string) {
 
 	fmt.Println("Initalizing new Gogot repo")
 
-	baseRepoPath := fmt.Sprintf("%s/.gogot", repoName)
+	baseRepoPath := fmt.Sprintf("%s/%s", repoName, core.GogotDir)
 	err := os.MkdirAll(baseRepoPath, 0755)
 	if err != nil {
 		fmt.Print(err)
@@ -24,55 +26,51 @@ func Init(args []string) {
 		os.Exit(1)
 	}
 
-	createObjectsDir(baseRepoPath)
-	createRefsDir(baseRepoPath)
-	initializeHead(baseRepoPath)
+	createObjectsDir()
+	createRefsDir()
+	initializeHead()
 
 	fmt.Printf("Gogot repo initialized in %s\n", baseRepoPath)
 }
 
-func createObjectsDir(path string) error {
-	objectsDir := fmt.Sprintf("%s/objects", path)
-	infoDir := fmt.Sprintf("%s/info", objectsDir)
-	packDir := fmt.Sprintf("%s/pack", objectsDir)
+func createObjectsDir() error {
+	infoDir := fmt.Sprintf("%s/info", core.ObjectsDir)
+	packDir := fmt.Sprintf("%s/pack", core.ObjectsDir)
 
 	var err error
 
-	err = os.MkdirAll(objectsDir, 0755)
+	err = os.MkdirAll(core.ObjectsDir, 0755)
 	err = os.MkdirAll(infoDir, 0755)
 	err = os.MkdirAll(packDir, 0755)
 
 	return err
 }
 
-func createRefsDir(path string) error {
-	refsDir := fmt.Sprintf("%s/refs", path)
-	headsDir := fmt.Sprintf("%s/heads", refsDir)
-	tagsDir := fmt.Sprintf("%s/tags", refsDir)
+func createRefsDir() error {
+	headsDir := fmt.Sprintf("%s/heads", core.RefsDir)
+	tagsDir := fmt.Sprintf("%s/tags", core.RefsDir)
 
 	var err error
 
-	err = os.MkdirAll(refsDir, 0755)
+	err = os.MkdirAll(core.RefsDir, 0755)
 	err = os.MkdirAll(headsDir, 0755)
 	err = os.MkdirAll(tagsDir, 0755)
 
 	return err
 }
 
-func initializeHead(path string) {
-	filename := fmt.Sprintf("%s/HEAD", path)
-	file, err := os.Create(filename)
-
+func initializeHead() {
+	file, err := os.Create(core.HeadFilePath)
 	if err != nil {
-		cleanup(path)
+		cleanup()
 	}
 	defer file.Close()
 
 	file.WriteString("ref: refs/heads/main")
 }
 
-func cleanup(path string) {
+func cleanup() {
 	fmt.Println("Something went wrong")
-	os.RemoveAll(path)
+	os.RemoveAll(core.GogotDir)
 	os.Exit(1)
 }

@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/gogot_object"
 	"github.com/aziflaj/gogot/index_tree"
 )
@@ -16,7 +17,7 @@ import (
 // Commit ...
 func Commit(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot commit \"message\"")
+		fmt.Println("Usage: gogot commit <message>")
 		os.Exit(1)
 	}
 
@@ -80,7 +81,7 @@ func buildCommit(treeHash string, commitMsg string) string {
 
 func updateRef(hash string) {
 	ref := currentRef()
-	branchPath := fmt.Sprintf("%s/%s", gogotDir, ref)
+	branchPath := fmt.Sprintf("%s/%s", core.GogotDir, ref)
 
 	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {

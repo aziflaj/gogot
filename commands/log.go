@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/aziflaj/gogot/core"
 )
 
 // Log ...
@@ -25,7 +27,7 @@ func Log(args []string) {
 
 func commitsFile() *os.File {
 	currentBranchPath := currentRef()
-	indexFile, err := os.Open(fmt.Sprintf("%s/%s", gogotDir, currentBranchPath))
+	indexFile, err := os.Open(fmt.Sprintf("%s/%s", core.GogotDir, currentBranchPath))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -45,7 +47,7 @@ func commitsList(file *os.File) []string {
 }
 
 func readCommitObjectContent(hash string) (treeHash string, author string, message string) {
-	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
+	objectFile, err := os.Open(fmt.Sprintf("%s/%s/%s", core.ObjectsDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -66,7 +68,7 @@ func readCommitObjectContent(hash string) (treeHash string, author string, messa
 }
 
 func readObjectContent(hash string) string {
-	objectFile, err := os.Open(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
+	objectFile, err := os.Open(fmt.Sprintf("%s/%s/%s", core.ObjectsDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -84,7 +86,7 @@ func readObjectContent(hash string) string {
 }
 
 func readBlobContent(hash string) []byte {
-	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/objects/%s/%s", gogotDir, hash[0:2], hash[2:]))
+	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", core.ObjectsDir, hash[0:2], hash[2:]))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
