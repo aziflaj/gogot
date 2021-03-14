@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/aziflaj/gogot/core"
-	"github.com/aziflaj/gogot/files"
+	"github.com/aziflaj/gogot/fileutils"
 )
 
 // Commit ...
@@ -27,7 +27,7 @@ func Commit(args []string) {
 }
 
 func buildIndexTree() *core.IndexTree {
-	indexFile, err := os.Open(files.IndexFilePath)
+	indexFile, err := os.Open(fileutils.IndexFilePath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -79,7 +79,7 @@ func updateRef(hash string) {
 		os.Exit(1)
 	}
 
-	branchPath := fmt.Sprintf("%s/%s", files.GogotDir, ref)
+	branchPath := fmt.Sprintf("%s/%s", fileutils.GogotDir, ref)
 	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -91,7 +91,7 @@ func updateRef(hash string) {
 }
 
 func clearIndex() error {
-	return os.Truncate(files.IndexFilePath, 0)
+	return os.Truncate(fileutils.IndexFilePath, 0)
 }
 
 func currentUser() string {

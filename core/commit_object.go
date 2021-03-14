@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aziflaj/gogot/files"
+	"github.com/aziflaj/gogot/fileutils"
 )
 
 type CommitObject struct {
@@ -26,7 +26,7 @@ func NewCommitObject(treeHash string, author string, commitMsg string) *CommitOb
 }
 
 func (obj *CommitObject) Commit() error {
-	file, err := files.CreateAndOpenCommitFile(obj.Hash)
+	file, err := fileutils.CreateAndOpenCommitFile(obj.Hash)
 	if err != nil {
 		return err
 	}

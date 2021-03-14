@@ -1,4 +1,4 @@
-package files
+package fileutils
 
 const (
 	GogotDir      = ".gogot"

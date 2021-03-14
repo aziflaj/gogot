@@ -4,11 +4,11 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/aziflaj/gogot/files"
+	"github.com/aziflaj/gogot/fileutils"
 )
 
 func CurrentRef() (string, error) {
-	content, err := ioutil.ReadFile(files.HeadFilePath)
+	content, err := ioutil.ReadFile(fileutils.HeadFilePath)
 	if err != nil {
 		return "", err
 	}
