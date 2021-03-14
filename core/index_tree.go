@@ -87,6 +87,29 @@ func (t *IndexTree) AddPath(path string, hash string) {
 	// fmt.Printf("\n\n\n")
 }
 
+func (t *IndexTree) BuildObjectTree(name string) (string, error) {
+	objectTree, err := CreateObjectFromString(name)
+	if err != nil {
+		return "", err
+	}
+
+	defer objectTree.FlushAndClose()
+
+	for _, child := range t.Children {
+		if child.Hash != "" { // is a file
+			objectTree.AddBlob(child)
+		} else { // is a dir
+			dirHash, err := child.BuildObjectTree(child.Name)
+			if err != nil {
+				return "", err
+			}
+			objectTree.AddTree(child, dirHash)
+		}
+	}
+
+	return objectTree.Hash, nil
+}
+
 func (t IndexTree) String() string {
 	if t.Name == "" {
 		return "[EMPTY]"

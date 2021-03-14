@@ -20,7 +20,12 @@ func Commit(args []string) {
 	}
 
 	indexTree := buildIndexTree()
-	rootHash := buildObjectTree("root", *indexTree)
+	rootHash, err := indexTree.BuildObjectTree("root")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	commitHash := buildCommitObject(rootHash, strings.Join(args, " "))
 	updateRef(commitHash)
 	clearIndex()
@@ -39,27 +44,6 @@ func buildIndexTree() *core.IndexTree {
 	return indexTree
 }
 
-func buildObjectTree(name string, tree core.IndexTree) string {
-	object, err := core.CreateObjectFromString(name)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	defer object.FlushAndClose()
-
-	for _, child := range tree.Children {
-		if child.Hash != "" { // is a file
-			object.AddBlob(child)
-		} else { // is a dir
-			dirHash := buildObjectTree(child.Name, *child)
-			object.AddTree(child, dirHash)
-		}
-	}
-
-	return object.Hash
-}
-
 func buildCommitObject(treeHash string, commitMsg string) string {
 	committer := currentUser()
 	commit := core.NewCommitObject(treeHash, committer, commitMsg)
@@ -73,7 +57,7 @@ func buildCommitObject(treeHash string, commitMsg string) string {
 }
 
 func updateRef(hash string) {
-	ref, err := core.CurrentRef()
+	ref, err := fileutils.CurrentRef()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
