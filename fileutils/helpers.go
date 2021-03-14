@@ -22,3 +22,12 @@ func ReadCommitContents(hash string) (string, error) {
 
 	return string(content), nil
 }
+
+func ReadBlobContents(hash string) ([]byte, error) {
+	content, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:]))
+	if err != nil {
+		return []byte{}, nil
+	}
+
+	return content, nil
+}

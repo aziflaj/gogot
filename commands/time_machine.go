@@ -1,12 +1,11 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/aziflaj/gogot/core"
+	"github.com/aziflaj/gogot/fileutils"
 )
 
 // TimeMachine ...
@@ -16,39 +15,31 @@ func TimeMachine(args []string) {
 		os.Exit(1)
 	}
 
-	commitID := args[0]
-	filePath := args[1]
-
+	commitID, filePath := args[0], args[1]
 	commit, err := core.CommitObjectFromHash(commitID)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	readObject(commit.TreeHash, filePath)
-}
 
-func readObject(treeHash string, filePath string) {
-	result := readObjectContent(treeHash)
-
-	scanner := bufio.NewScanner(strings.NewReader(result))
-	for scanner.Scan() {
-		splitContent := strings.Split(scanner.Text(), " ")
-		objectType := splitContent[0]
-		hash := splitContent[1]
-		objectName := splitContent[2]
-		if objectType == "blob" && filePath == objectName {
-			// found the file
-			blob := readBlobContent(hash)
-			result, err := core.DecompressBytes(blob)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			fmt.Println(result)
-		} else if objectType == "tree" && strings.HasPrefix(filePath, objectName) {
-			// found the dir
-			pathWithoutPrefix := strings.Split(filePath, objectName+"/")[1]
-			readObject(hash, pathWithoutPrefix)
-		}
+	pastIndexTree, err := core.BuildIndexFromCommit(commit.TreeHash, ".")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+
+	child := pastIndexTree.FindChildByPath(filePath)
+	blob, err := fileutils.ReadBlobContents(child.Hash)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fileContent, err := core.DecompressBytes(blob)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(fileContent)
 }

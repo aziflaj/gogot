@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/aziflaj/gogot/fileutils"
 )
 
 // IndexTree ...
@@ -30,13 +32,42 @@ func BuildIndexFromFile(file *os.File) *IndexTree {
 	return tree
 }
 
+func BuildIndexFromCommit(hash string, name string) (tree *IndexTree, err error) {
+	content, err := fileutils.ReadCommitContents(hash)
+	if err != nil {
+		return
+	}
+
+	tree = &IndexTree{Name: name}
+
+	for _, line := range strings.Split(content, "\n") {
+		splitContent := strings.Split(line, " ")
+		if len(splitContent) == 1 { // newline at the end of file
+			continue
+		}
+
+		objectType := splitContent[0]
+		hash := splitContent[1]
+		objectName := splitContent[2]
+
+		if objectType == "blob" { // Object is a file
+			tree.Children = append(tree.Children, &IndexTree{Name: objectName, Hash: hash})
+		} else if objectType == "tree" { // Object is a dir
+			child, _ := BuildIndexFromCommit(hash, objectName)
+			tree.Children = append(tree.Children, child)
+		}
+	}
+
+	return
+}
+
 func NewTreeWithName(name string) *IndexTree {
 	return &IndexTree{Name: name}
 }
 
-func (t *IndexTree) FindChildByName(name string) *IndexTree {
+func (t IndexTree) FindChildByName(name string) *IndexTree {
 	if t.Name == name {
-		return t
+		return &t
 	}
 
 	if len(t.Children) == 0 {
@@ -55,6 +86,16 @@ func (t *IndexTree) FindChildByName(name string) *IndexTree {
 	}
 
 	return nil
+}
+
+func (t IndexTree) FindChildByPath(path string) *IndexTree {
+	pathParts := strings.Split(path, "/")
+	child := t.FindChildByName(pathParts[0])
+	if child == nil {
+		return nil
+	}
+
+	return child.FindChildByName(strings.Join(pathParts[1:], "/"))
 }
 
 // AddPath ...
