@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/aziflaj/gogot/core"
+	"github.com/aziflaj/gogot/files"
 	"github.com/aziflaj/gogot/gogot_object"
 	"github.com/aziflaj/gogot/index_tree"
 )
@@ -23,13 +24,13 @@ func Commit(args []string) {
 
 	indexTree := buildIndexTree()
 	rootHash := buildObjectTree("root", *indexTree)
-	commitHash := buildCommit(rootHash, strings.Join(args, " "))
+	commitHash := buildCommitObject(rootHash, strings.Join(args, " "))
 	updateRef(commitHash)
 	clearIndex()
 }
 
 func buildIndexTree() *index_tree.IndexTree {
-	indexFile, err := os.Open(indexPath)
+	indexFile, err := os.Open(files.IndexFilePath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -62,26 +63,21 @@ func buildObjectTree(name string, tree index_tree.IndexTree) string {
 	return object.Hash
 }
 
-func buildCommit(treeHash string, commitMsg string) string {
+func buildCommitObject(treeHash string, commitMsg string) string {
 	committer := currentUser()
-	commit, err := gogot_object.CreateFromString(committer)
+	commit := core.NewCommitObject(treeHash, committer, commitMsg)
+	err := commit.Commit()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
-
-	defer commit.FlushAndClose()
-
-	commit.Write(fmt.Sprintf("tree %s\n", treeHash))
-	commit.Write(fmt.Sprintf("author %s\n", committer))
-	commit.Write(fmt.Sprintf("\n%s\n", commitMsg))
 
 	return commit.Hash
 }
 
 func updateRef(hash string) {
 	ref := currentRef()
-	branchPath := fmt.Sprintf("%s/%s", core.GogotDir, ref)
+	branchPath := fmt.Sprintf("%s/%s", files.GogotDir, ref)
 
 	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -94,7 +90,7 @@ func updateRef(hash string) {
 }
 
 func clearIndex() error {
-	return os.Truncate(indexPath, 0)
+	return os.Truncate(files.IndexFilePath, 0)
 }
 
 func currentUser() string {
@@ -111,7 +107,7 @@ func currentUser() string {
 }
 
 func currentRef() string {
-	headFile, err := os.Open(headPath)
+	headFile, err := os.Open(files.HeadFilePath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
