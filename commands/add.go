@@ -93,6 +93,7 @@ func appendToIndexFile(index string) {
 
 	if _, err := f.WriteString(index); err != nil {
 		log.Println(err)
+		os.Exit(1)
 	}
 }
 

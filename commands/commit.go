@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"log"
@@ -76,9 +75,13 @@ func buildCommitObject(treeHash string, commitMsg string) string {
 }
 
 func updateRef(hash string) {
-	ref := currentRef()
-	branchPath := fmt.Sprintf("%s/%s", files.GogotDir, ref)
+	ref, err := core.CurrentRef()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
+	branchPath := fmt.Sprintf("%s/%s", files.GogotDir, ref)
 	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -104,24 +107,4 @@ func currentUser() string {
 	}
 
 	return strings.Split(out.String(), "\n")[0]
-}
-
-func currentRef() string {
-	headFile, err := os.Open(files.HeadFilePath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	reader := bufio.NewReader(headFile)
-	content, _, err := reader.ReadLine()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	headFile.Close()
-
-	ref := strings.Split(string(content), ": ")[1]
-
-	return ref
 }
