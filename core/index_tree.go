@@ -65,9 +65,9 @@ func NewTreeWithName(name string) *IndexTree {
 	return &IndexTree{Name: name}
 }
 
-func (t IndexTree) FindChildByName(name string) *IndexTree {
+func (t *IndexTree) FindChildByName(name string) *IndexTree {
 	if t.Name == name {
-		return &t
+		return t
 	}
 
 	if len(t.Children) == 0 {
@@ -88,7 +88,7 @@ func (t IndexTree) FindChildByName(name string) *IndexTree {
 	return nil
 }
 
-func (t IndexTree) FindChildByPath(path string) *IndexTree {
+func (t *IndexTree) FindChildByPath(path string) *IndexTree {
 	pathParts := strings.Split(path, "/")
 	child := t.FindChildByName(pathParts[0])
 	if child == nil {
@@ -125,30 +125,31 @@ func (t *IndexTree) AddPath(path string, hash string) {
 		}
 	}
 
-	// fmt.Printf("\n\n\n")
+	fmt.Printf("\n\n\n")
 }
 
 func (t *IndexTree) BuildObjectTree(name string) (string, error) {
-	objectTree, err := CreateObjectFromString(name)
+	hash := TimedHash(name)
+	file, err := fileutils.CreateAndOpenCommitFile(hash)
 	if err != nil {
 		return "", err
 	}
 
-	defer objectTree.FlushAndClose()
+	defer file.Close()
 
 	for _, child := range t.Children {
 		if child.Hash != "" { // is a file
-			objectTree.AddBlob(child)
+			file.WriteString(fmt.Sprintf("blob %s %s\n", child.Hash, child.Name))
 		} else { // is a dir
 			dirHash, err := child.BuildObjectTree(child.Name)
 			if err != nil {
 				return "", err
 			}
-			objectTree.AddTree(child, dirHash)
+			file.WriteString(fmt.Sprintf("blob %s %s\n", dirHash, child.Name))
 		}
 	}
 
-	return objectTree.Hash, nil
+	return hash, nil
 }
 
 func (t IndexTree) String() string {

@@ -1,6 +1,8 @@
 package core
 
-import "testing"
+import (
+	"testing"
+)
 
 func generateTree() IndexTree {
 	return IndexTree{
@@ -19,7 +21,7 @@ func generateTree() IndexTree {
 	}
 }
 
-func TestChildWithName(t *testing.T) {
+func TestFindChildByName(t *testing.T) {
 	tree := generateTree()
 	commandsChild := tree.FindChildByName("commands")
 	if commandsChild == nil {
