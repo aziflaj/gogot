@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -97,18 +96,11 @@ func appendToIndexFile(index string) {
 	}
 }
 
-func ignoredPatterns() (paths []string) {
+func ignoredPatterns() []string {
 	objectFile, err := os.Open(fileutils.GogotIgnore)
 	if err != nil {
-		return
+		return []string{}
 	}
 
-	scanner := bufio.NewScanner(objectFile)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		paths = append(paths, scanner.Text())
-	}
-	objectFile.Close()
-
-	return
+	return fileutils.ReadLines(objectFile)
 }

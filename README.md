@@ -4,7 +4,7 @@
 Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-git-in-ruby) titled **"Rebuilding Git in Ruby"**, I made a similar program but in Go. Not really a full copy of Git, rather more like an attempt to understand how Git stores and manages file contents. The features supported (so far) are these:
 
 - [x] `.gogotignore` - Similar to `.gitignore`
-- [x] `gogot init [PATH]` - Similar to `git init [PATH]`
+- [x] `gogot init [PATH]` - Similar to `git init [PATH]`, it initializes a repo with a default `main` branch
 - [x] `gogot add [FILE1] [FILE2] [PATH]` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
 - [x] `gogot commit [MESSAGE]` - Similar to `git commit -m "[MESSAGE]"`; gogot doesn't require quotes
 - [x] `gogot log` - Similar to `git log --oneline`; more condensed and quicker to write
