@@ -16,7 +16,7 @@ func TimeMachine(args []string) {
 	}
 
 	commitID, filePath := args[0], args[1]
-	commit, err := core.CommitObjectFromHash(commitID)
+	commit, err := core.FindCommitWithID(commitID)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

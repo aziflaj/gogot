@@ -53,7 +53,7 @@ func buildCommitObject(treeHash string, commitMsg string) string {
 		os.Exit(1)
 	}
 
-	return commit.Hash
+	return commit.ID
 }
 
 func updateRef(hash string) {
