@@ -8,6 +8,9 @@ import (
 	"path"
 )
 
+// Memoizing this because of recursive AllPaths
+var GogotIgnorePatterns = IgnoredPatterns()
+
 func ReadLines(file *os.File) (lines []string) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
@@ -18,15 +21,10 @@ func ReadLines(file *os.File) (lines []string) {
 }
 
 func AllPaths(filepath string) (paths []string, err error) {
-	patterns := IgnoredPatterns() // can be constant?
-	for _, pattern := range patterns {
+	for _, pattern := range GogotIgnorePatterns {
 		if match, _ := path.Match(pattern, filepath); match {
 			return nil, nil
 		}
-	}
-
-	if filepath == GogotDir {
-		return nil, nil
 	}
 
 	info, err := os.Stat(filepath)
@@ -50,11 +48,16 @@ func AllPaths(filepath string) (paths []string, err error) {
 	return paths, nil
 }
 
-func IgnoredPatterns() []string {
+func IgnoredPatterns() (ignored []string) {
+	ignored = make([]string, 2)
+	ignored[0] = fmt.Sprintf("./%s", GogotDir)
+	ignored[1] = fmt.Sprintf("./%s", GogotIgnore)
+
 	objectFile, err := os.Open(GogotIgnore)
 	if err != nil {
 		return []string{}
 	}
 
-	return ReadLines(objectFile)
+	// I think I like this ... more than ES6's ...
+	return append(ignored, ReadLines(objectFile)...)
 }

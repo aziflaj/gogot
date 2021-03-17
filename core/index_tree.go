@@ -95,7 +95,11 @@ func (t *IndexTree) FindChildByPath(path string) *IndexTree {
 		return nil
 	}
 
-	return child.FindChildByName(strings.Join(pathParts[1:], "/"))
+	if len(pathParts) == 1 {
+		return child
+	}
+
+	return child.FindChildByPath(strings.Join(pathParts[1:], "/"))
 }
 
 // AddPath ...

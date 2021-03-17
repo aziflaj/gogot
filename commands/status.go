@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -25,11 +26,19 @@ func Status(args []string) {
 	printIndexedChanges()
 	fmt.Print("\n")
 
-	prevCommit, err := previousCommitTree()
+	prevCommit, err := previousCommit()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	commitTree, err := core.BuildIndexFromCommit(prevCommit.TreeHash, ".")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(commitTree)
 
 	paths, err := fileutils.AllPaths(".")
 	if err != nil {
@@ -37,39 +46,35 @@ func Status(args []string) {
 		os.Exit(1)
 	}
 
-	for _, filePath := range paths {
-		child := prevCommit.FindChildByPath(filePath)
-		if child != nil {
-			// check if changed after indexed
-			fmt.Println("tracked " + filePath)
-		} else {
-			// fmt.Println("untracked " + filePath)
-			// untracked = append(untracked, file.Name())
-		}
-	}
+	var trackedFiles, untrackedFiles []string
 
-	// untrackedFiles, unindexedFiles, err := categorizeFiles(allFiles, prevCommit)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	for _, filePath := range paths {
+		child := commitTree.FindChildByPath(filePath)
+		if child == nil {
+			untrackedFiles = append(untrackedFiles, filePath)
+		} else if isFileIndexed(filePath, prevCommit) {
+			// TODO: check if changed after indexed
+			// fmt.Println("tracked " + filePath)
+			trackedFiles = append(trackedFiles, filePath)
+		}
 	}
 
 	// tracked files, unindexed (prev commit, not in index)
 	fmt.Println("Files not added to index:")
 	fmt.Println("    (use \"gogot add/rm <file>\") to update what will be committed")
 	fmt.Println("    (use \"gogot rollback <file>\") to unstage")
-	// for _, file := range unindexedFiles {
-	// 	fmt.Printf("\t%s\n", file)
-	// }
+	for _, file := range trackedFiles {
+		fmt.Printf("\t%s\n", file)
+	}
 
 	fmt.Print("\n")
 
 	// untracked files (they shouldn't be in the prev commit)
 	fmt.Println("Untracked files:")
 	fmt.Println("    (use \"gogot add <file>\") to include in the commit")
-	// for _, file := range untrackedFiles {
-	// 	fmt.Printf("\t%s\n", file)
-	// }
+	for _, file := range untrackedFiles {
+		fmt.Printf("\t%s\n", file)
+	}
 
 	fmt.Println("nothing to commit, working tree clean")
 }
@@ -90,7 +95,7 @@ func printIndexedChanges() {
 	}
 }
 
-func previousCommitTree() (*core.IndexTree, error) {
+func previousCommit() (*core.CommitObject, error) {
 	commitsFile, err := fileutils.CurrentBranchCommitsFile()
 	if err != nil {
 		return nil, err
@@ -103,7 +108,7 @@ func previousCommitTree() (*core.IndexTree, error) {
 		return nil, err
 	}
 
-	return core.BuildIndexFromCommit(commit.TreeHash, ".")
+	return commit, nil
 }
 
 func currentBranch() (string, error) {
@@ -131,44 +136,33 @@ func filesInIndex() (files []string, err error) {
 	return files, nil
 }
 
-// func categorizeFiles(allFiles []*os.File, commitTree *core.IndexTree) ([]string, []string, error) {
-// 	var untracked, unindexed []string
+// true if files are different
+func compareFiles(filePath string, child *core.IndexTree) bool {
+	currentContent, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-// categorize:
-// 	for _, file := range allFiles {
-// 		if file.Name() == fileutils.GogotDir {
-// 			continue
-// 		}
+	hash := core.HashBytes(currentContent)
+	return hash == child.Hash
+}
 
-// 		for _, pattern := range patterns {
-// 			if match, _ := path.Match(pattern, file.Name()); match {
-// 				continue categorize
-// 			}
-// 		}
+func isFileIndexed(filePath string, commit *core.CommitObject) bool {
+	parentCommit, err := commit.Parent()
+	if err != nil || parentCommit == nil {
+		return false
+	}
 
-// 		info, err := os.Stat(file.Name())
-// 		if err != nil {
-// 			fmt.Println(err)
-// 			os.Exit(1)
-// 		}
+	commitTree, err := core.BuildIndexFromCommit(parentCommit.TreeHash, ".")
+	if err != nil {
+		return false
+	}
 
-// 		if info.IsDir() {
-// 			// handle dir
+	child := commitTree.FindChildByPath(filePath)
+	if child == nil {
+		return isFileIndexed(filePath, parentCommit)
+	}
 
-// 			// subfiles, _ := ioutil.ReadDir(file.Name())
-// 			// for _, subfile := range subfiles {
-
-// 			// }
-// 		} else {
-// 			// handle File
-// 			child := commitTree.FindChildByPath(file.Name())
-// 			if child != nil {
-// 				untracked = append(untracked, file.Name())
-// 			} else {
-// 				// check if changed after indexed
-// 			}
-// 		}
-// 	}
-
-// 	return untracked, unindexed, nil
-// }
+	return true
+}

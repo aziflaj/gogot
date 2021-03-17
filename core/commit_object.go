@@ -53,3 +53,19 @@ func (obj *CommitObject) Commit() error {
 
 	return nil
 }
+
+func (obj *CommitObject) Parent() (*CommitObject, error) {
+	commitsFile, err := fileutils.CurrentBranchCommitsFile()
+	if err != nil {
+		return nil, err
+	}
+
+	commits := fileutils.ReadLines(commitsFile)
+	for index, commitId := range commits {
+		if commitId == obj.ID && index > 0 {
+			return FindCommitWithID(commits[index-1])
+		}
+	}
+
+	return nil, nil
+}
