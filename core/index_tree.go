@@ -145,7 +145,7 @@ func (t *IndexTree) BuildObjectTree(name string) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			file.WriteString(fmt.Sprintf("blob %s %s\n", dirHash, child.Name))
+			file.WriteString(fmt.Sprintf("tree %s %s\n", dirHash, child.Name))
 		}
 	}
 

@@ -5,13 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
 
 	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/fileutils"
 )
-
-var patterns = ignoredPatterns()
 
 // Add ...
 func Add(args []string) {
@@ -20,35 +17,16 @@ func Add(args []string) {
 		os.Exit(1)
 	}
 
-	for _, filepath := range args {
-		addRecursive(filepath)
-	}
-}
-
-func addRecursive(filepath string) {
-	for _, pattern := range patterns {
-		if match, _ := path.Match(pattern, filepath); match {
-			return
+	for _, path := range args {
+		filesInPath, err := fileutils.AllPaths(path)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
 		}
-	}
 
-	info, err := os.Stat(filepath)
-	if os.IsNotExist(err) {
-		fmt.Printf("File doesn't exist: %v\n", filepath)
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	if info.IsDir() {
-		files, _ := ioutil.ReadDir(filepath)
-		for _, file := range files {
-			if file.Name() == fileutils.GogotDir {
-				continue
-			}
-			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
+		for _, file := range filesInPath {
+			addFile(file)
 		}
-	} else {
-		addFile(filepath)
 	}
 }
 
@@ -94,13 +72,4 @@ func appendToIndexFile(index string) {
 		log.Println(err)
 		os.Exit(1)
 	}
-}
-
-func ignoredPatterns() []string {
-	objectFile, err := os.Open(fileutils.GogotIgnore)
-	if err != nil {
-		return []string{}
-	}
-
-	return fileutils.ReadLines(objectFile)
 }
