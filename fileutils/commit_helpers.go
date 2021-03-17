@@ -6,6 +6,20 @@ import (
 	"os"
 )
 
+func CurrentBranchCommitsFile() (*os.File, error) {
+	currentBranchPath, err := CurrentRef()
+	if err != nil {
+		return nil, err
+	}
+
+	commitsFile, err := os.Open(fmt.Sprintf("%s/%s", GogotDir, currentBranchPath))
+	if err != nil {
+		return nil, err
+	}
+
+	return commitsFile, nil
+}
+
 func CreateAndOpenCommitFile(hash string) (file *os.File, err error) {
 	objectDirPath := fmt.Sprintf("%s/%s", ObjectsDir, hash[0:2])
 	os.Mkdir(objectDirPath, 0755)

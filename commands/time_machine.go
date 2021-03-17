@@ -29,6 +29,10 @@ func TimeMachine(args []string) {
 	}
 
 	child := pastIndexTree.FindChildByPath(filePath)
+	if child == nil {
+		fmt.Printf("File %s not found\n", filePath)
+		os.Exit(0)
+	}
 	blob, err := fileutils.ReadBlobContents(child.Hash)
 	if err != nil {
 		fmt.Println(err)

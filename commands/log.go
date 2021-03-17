@@ -12,45 +12,23 @@ import (
 
 // Log ...
 func Log(args []string) {
-	commitsFile := commitsFile()
+	commitsFile, err := fileutils.CurrentBranchCommitsFile()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	defer commitsFile.Close()
 
 	branchPathSlices := strings.Split(commitsFile.Name(), "/")
 	fmt.Printf("Logs on branch %s\n", branchPathSlices[len(branchPathSlices)-1])
 
-	commits := commitsList(commitsFile)
-	for _, commit := range commits {
+	for _, commit := range fileutils.ReadLines(commitsFile) {
 		_, author, message := readCommitObjectContent(commit)
 		fmt.Printf("%s    (author %s)    %s\n", commit, author, message)
 	}
 }
 
-func commitsFile() *os.File {
-	currentBranchPath, err := fileutils.CurrentRef()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	indexFile, err := os.Open(fmt.Sprintf("%s/%s", fileutils.GogotDir, currentBranchPath))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return indexFile
-}
-
-func commitsList(file *os.File) []string {
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	var commits []string
-	for scanner.Scan() {
-		commits = append(commits, scanner.Text())
-	}
-	return commits
-}
-
+// TODO: refactor this shit
 func readCommitObjectContent(hash string) (treeHash string, author string, message string) {
 	objectFile, err := os.Open(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, hash[0:2], hash[2:]))
 	if err != nil {

@@ -11,8 +11,9 @@ import (
 	"github.com/aziflaj/gogot/fileutils"
 )
 
+var patterns = ignoredPatterns()
+
 // Add ...
-// TODO: Can't add a single file. Make a fix
 func Add(args []string) {
 	if len(args) < 1 {
 		fmt.Println("Usage: gogot add <path1> [<path2>] ...")
@@ -25,7 +26,6 @@ func Add(args []string) {
 }
 
 func addRecursive(filepath string) {
-	patterns := ignoredPatterns()
 	for _, pattern := range patterns {
 		if match, _ := path.Match(pattern, filepath); match {
 			return
