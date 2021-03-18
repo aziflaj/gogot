@@ -71,5 +71,5 @@ func (obj *CommitObject) Parent() (*CommitObject, error) {
 }
 
 func (obj *CommitObject) String() string {
-	return fmt.Sprintf("[Commit: %s]", obj.ID)
+	return fmt.Sprintf("[Commit: %s (%s)]", obj.ID, obj.Message)
 }

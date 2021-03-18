@@ -156,6 +156,18 @@ func (t *IndexTree) BuildObjectTree(name string) (string, error) {
 	return hash, nil
 }
 
+func (t IndexTree) CheckBlobMatch(filepath string) bool {
+	file, err := os.Open(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, t.Hash[0:2], t.Hash[2:]))
+	if err != nil {
+		return false
+	}
+
+	scanner := bufio.NewScanner(file)
+	fileHash := HashBytes(scanner.Bytes())
+
+	return fileHash == t.Hash
+}
+
 func (t IndexTree) String() string {
 	if t.Name == "" {
 		return "[EMPTY]"
