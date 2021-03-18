@@ -26,19 +26,11 @@ func Status(args []string) {
 	printIndexedChanges()
 	fmt.Print("\n")
 
-	prevCommit, err := previousCommit()
+	commits, err := commitsInBranch()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	commitTree, err := core.BuildIndexFromCommit(prevCommit.TreeHash, ".")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	fmt.Println(commitTree)
 
 	paths, err := fileutils.AllPaths(".")
 	if err != nil {
@@ -48,15 +40,30 @@ func Status(args []string) {
 
 	var trackedFiles, untrackedFiles []string
 
+nextPath:
 	for _, filePath := range paths {
-		child := commitTree.FindChildByPath(filePath)
-		if child == nil {
-			untrackedFiles = append(untrackedFiles, filePath)
-		} else if isFileIndexed(filePath, prevCommit) {
-			// TODO: check if changed after indexed
-			// fmt.Println("tracked " + filePath)
-			trackedFiles = append(trackedFiles, filePath)
+		for _, commit := range commits {
+			commitTree, err := core.BuildIndexFromCommit(commit.TreeHash, ".")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			child := commitTree.FindChildByPath(filePath)
+			// fmt.Println("child")
+			// fmt.Println(child)
+			// fmt.Println("commitTree")
+			// fmt.Println(commitTree)
+			// fmt.Println("filePath")
+			// fmt.Println(filePath)
+
+			if child != nil {
+				// TODO: check if current blob matches child's blob
+				trackedFiles = append(trackedFiles, filePath)
+				continue nextPath
+			}
 		}
+		untrackedFiles = append(untrackedFiles, filePath)
 	}
 
 	// tracked files, unindexed (prev commit, not in index)
@@ -95,20 +102,20 @@ func printIndexedChanges() {
 	}
 }
 
-func previousCommit() (*core.CommitObject, error) {
+func commitsInBranch() (commits []*core.CommitObject, err error) {
 	commitsFile, err := fileutils.CurrentBranchCommitsFile()
 	if err != nil {
 		return nil, err
 	}
 
-	commits := fileutils.ReadLines(commitsFile)
-	prevCommitId := commits[len(commits)-1]
-	commit, err := core.FindCommitWithID(prevCommitId)
-	if err != nil {
-		return nil, err
+	commitIds := fileutils.ReadLines(commitsFile)
+	commitsCount := len(commitIds)
+	commits = make([]*core.CommitObject, commitsCount)
+	for i := 0; i < commitsCount; i++ {
+		commits[i], err = core.FindCommitWithID(commitIds[commitsCount-i-1])
 	}
 
-	return commit, nil
+	return
 }
 
 func currentBranch() (string, error) {
