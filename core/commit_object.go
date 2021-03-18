@@ -31,7 +31,7 @@ func FindCommitWithID(id string) (*CommitObject, error) {
 		return nil, err
 	}
 
-	splitContent := strings.Split(content, "\n")
+	splitContent := strings.Split(strings.TrimLeft(content, "\n"), "\n")
 	return &CommitObject{
 		ID:       id,
 		TreeHash: strings.Split(splitContent[0], "tree ")[1],
