@@ -11,6 +11,7 @@ func CurrentRef() (string, error) {
 		return "", err
 	}
 
-	ref := strings.Split(FileContents(headFile), ": ")[1]
-	return ref, nil
+  ref := strings.Split(FileContents(headFile), ": ")[1]
+	
+  return ref, nil
 }

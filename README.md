@@ -5,7 +5,7 @@ Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-
 
 - [x] `.gogotignore` - Similar to `.gitignore`
 - [x] `gogot init [PATH]` - Similar to `git init [PATH]`, it initializes a repo with a default `main` branch
-- [x] `gogot add [FILE1] [FILE2] [PATH]` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
+- [x] `gogot add [PATH1] [PATH2] ...` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
 - [x] `gogot commit [MESSAGE]` - Similar to `git commit -m "[MESSAGE]"`; gogot doesn't require quotes
 - [x] `gogot log` - Similar to `git log --oneline`; more condensed and quicker to write
 - [x] `gogot time-machine [COMMIT-ID] [FILE-PATH]`- I don't know the Git equivalent of this, but it prints the content of a given file in the specified commit
@@ -17,7 +17,7 @@ Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-
 
 Here's a sample run:
 
-```bash
+```bash 
 $ go build
 $ ./gogot init kewl-projekt # You can also do `gogot init .`
 Initalizing new Gogot repo

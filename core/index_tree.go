@@ -95,7 +95,11 @@ func (t *IndexTree) FindChildByPath(path string) *IndexTree {
 		return nil
 	}
 
-	return child.FindChildByName(strings.Join(pathParts[1:], "/"))
+	if len(pathParts) == 1 {
+		return child
+	}
+
+	return child.FindChildByPath(strings.Join(pathParts[1:], "/"))
 }
 
 // AddPath ...
@@ -145,11 +149,23 @@ func (t *IndexTree) BuildObjectTree(name string) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			file.WriteString(fmt.Sprintf("blob %s %s\n", dirHash, child.Name))
+			file.WriteString(fmt.Sprintf("tree %s %s\n", dirHash, child.Name))
 		}
 	}
 
 	return hash, nil
+}
+
+func (t IndexTree) CheckBlobMatch(filepath string) bool {
+	file, err := os.Open(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, t.Hash[0:2], t.Hash[2:]))
+	if err != nil {
+		return false
+	}
+
+	scanner := bufio.NewScanner(file)
+	fileHash := HashBytes(scanner.Bytes())
+
+	return fileHash == t.Hash
 }
 
 func (t IndexTree) String() string {

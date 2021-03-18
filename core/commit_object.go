@@ -31,7 +31,7 @@ func FindCommitWithID(id string) (*CommitObject, error) {
 		return nil, err
 	}
 
-	splitContent := strings.Split(content, "\n")
+	splitContent := strings.Split(strings.TrimLeft(content, "\n"), "\n")
 	return &CommitObject{
 		ID:       id,
 		TreeHash: strings.Split(splitContent[0], "tree ")[1],
@@ -52,4 +52,24 @@ func (obj *CommitObject) Commit() error {
 	file.WriteString(fmt.Sprintf("\n%s\n", obj.Message))
 
 	return nil
+}
+
+func (obj *CommitObject) Parent() (*CommitObject, error) {
+	commitsFile, err := fileutils.CurrentBranchCommitsFile()
+	if err != nil {
+		return nil, err
+	}
+
+	commits := fileutils.ReadLines(commitsFile)
+	for index, commitId := range commits {
+		if commitId == obj.ID && index > 0 {
+			return FindCommitWithID(commits[index-1])
+		}
+	}
+
+	return nil, nil
+}
+
+func (obj *CommitObject) String() string {
+	return fmt.Sprintf("[Commit: %s (%s)]", obj.ID, obj.Message)
 }
