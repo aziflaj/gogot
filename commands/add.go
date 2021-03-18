@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -41,8 +40,7 @@ func addRecursive(filepath string) {
 	}
 
 	if info.IsDir() {
-		// files, _ := os.ReadDir(".") // TODO: Once upgrading to Go 1.16
-		files, _ := ioutil.ReadDir(filepath)
+		files, _ := os.ReadDir(filepath)
 		for _, file := range files {
 			if file.Name() == fileutils.GogotDir {
 				continue
