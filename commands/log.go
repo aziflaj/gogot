@@ -3,7 +3,6 @@ package commands
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -66,14 +65,4 @@ func readObjectContent(hash string) string {
 	objectFile.Close()
 
 	return strings.Join(contents, "\n")
-}
-
-func readBlobContent(hash string) []byte {
-	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, hash[0:2], hash[2:]))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return objectFile
 }

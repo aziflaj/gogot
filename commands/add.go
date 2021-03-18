@@ -41,6 +41,7 @@ func addRecursive(filepath string) {
 	}
 
 	if info.IsDir() {
+		// files, _ := os.ReadDir(".") // TODO: Once upgrading to Go 1.16
 		files, _ := ioutil.ReadDir(filepath)
 		for _, file := range files {
 			if file.Name() == fileutils.GogotDir {
@@ -54,11 +55,13 @@ func addRecursive(filepath string) {
 }
 
 func addFile(path string) {
-	content, err := ioutil.ReadFile(path)
+	file, err := os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	content := fileutils.FileBytes(file)
 
 	hash := core.HashBytes(content)
 	blob := core.CompressBytes(content)
