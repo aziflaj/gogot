@@ -3,7 +3,6 @@ package fileutils
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -34,11 +33,25 @@ func ReadLines(file *os.File) (lines []string) {
 	return
 }
 
-func AllPaths(filepath string) (paths []string, err error) {
+func checkPathIgnored(filepath string) (bool, error) {
 	for _, pattern := range GogotIgnorePatterns {
-		if match, _ := path.Match(pattern, filepath); match {
-			return nil, nil
+		match, err := path.Match(pattern, filepath)
+		if err != nil {
+			return false, err
 		}
+
+		if match {
+			return match, nil
+		}
+	}
+
+	return false, nil
+}
+
+func AllPaths(filepath string) (paths []string, err error) {
+	isIgnored, err := checkPathIgnored(filepath)
+	if err != nil || isIgnored {
+		return nil, err
 	}
 
 	info, err := os.Stat(filepath)
@@ -47,7 +60,7 @@ func AllPaths(filepath string) (paths []string, err error) {
 	}
 
 	if info.IsDir() {
-		files, _ := ioutil.ReadDir(filepath)
+		files, _ := os.ReadDir(filepath)
 		for _, file := range files {
 			dirPaths, err := AllPaths(fmt.Sprintf("%s/%s", filepath, file.Name()))
 			if err != nil {
@@ -67,9 +80,9 @@ func IgnoredPatterns() (ignored []string) {
 	ignored[0] = fmt.Sprintf("./%s", GogotDir)
 	ignored[1] = fmt.Sprintf("./%s", GogotIgnore)
 
-	objectFile, err := os.Open(GogotIgnore)
+	objectFile, err := os.Open(ignored[1])
 	if err != nil {
-		return []string{}
+		return ignored
 	}
 
 	// I think I like this ... more than ES6's ...

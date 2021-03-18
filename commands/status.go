@@ -70,6 +70,10 @@ nextPath:
 				continue
 			}
 
+			// fmt.Println("checking " + filePath)
+			// fmt.Println("child.CheckBlobMatch(filePath)")
+			// fmt.Println(child.CheckBlobMatch(filePath))
+
 			if !child.CheckBlobMatch(filePath) {
 				trackedFiles = append(trackedFiles, filePath)
 			}
@@ -79,25 +83,33 @@ nextPath:
 		untrackedFiles = append(untrackedFiles, filePath)
 	}
 
-	fmt.Println("Files not added to index:")
-	fmt.Println("    (use \"gogot add <path>\") to include in the commit")
-	// TODO: the following functionalities
-	// fmt.Println("    (use \"gogot add/rm <file>\") to update what will be committed")
-	// fmt.Println("    (use \"gogot rollback <file>\") to unstage")
-	for _, file := range trackedFiles {
-		fmt.Printf("\t%s\n", file)
+	if len(trackedFiles) > 0 {
+		fmt.Println("Files not added to index:")
+		fmt.Println("    (use \"gogot add <path>\") to include in the commit")
+		// TODO: the following functionalities
+		// fmt.Println("    (use \"gogot add/rm <file>\") to update what will be committed")
+		// fmt.Println("    (use \"gogot rollback <file>\") to unstage")
+		for _, file := range trackedFiles {
+			fmt.Printf("\t%s\n", file)
+		}
+
+		fmt.Print("\n")
 	}
 
-	fmt.Print("\n")
+	if len(untrackedFiles) > 0 {
+		// untracked files (they shouldn't be in the prev commit)
+		fmt.Println("Untracked files:")
+		fmt.Println("    (use \"gogot add <path>\") to include in the commit")
+		for _, file := range untrackedFiles {
+			fmt.Printf("\t%s\n", file)
+		}
 
-	// untracked files (they shouldn't be in the prev commit)
-	fmt.Println("Untracked files:")
-	fmt.Println("    (use \"gogot add <path>\") to include in the commit")
-	for _, file := range untrackedFiles {
-		fmt.Printf("\t%s\n", file)
+		fmt.Print("\n")
 	}
 
-	fmt.Println("nothing to commit, working tree clean")
+	if len(stagedFiles) == 0 && len(trackedFiles) == 0 && len(untrackedFiles) == 0 {
+		fmt.Println("nothing to commit, working tree clean")
+	}
 }
 
 func commitsInBranch() (commits []*core.CommitObject, err error) {
