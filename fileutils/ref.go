@@ -1,16 +1,16 @@
 package fileutils
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
 func CurrentRef() (string, error) {
-	content, err := ioutil.ReadFile(HeadFilePath)
+	headFile, err := os.OpenFile(HeadFilePath, os.O_RDONLY, 0644)
 	if err != nil {
 		return "", err
 	}
 
-	ref := strings.Split(string(content), ": ")[1]
+	ref := strings.Split(FileContent(headFile), ": ")[1]
 	return ref, nil
 }

@@ -11,6 +11,15 @@ import (
 // Memoizing this because of recursive AllPaths
 var GogotIgnorePatterns = IgnoredPatterns()
 
+func FileContent(file *os.File) (content string) {
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		content += "\n" + scanner.Text()
+	}
+	return
+}
+
 func ReadLines(file *os.File) (lines []string) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
