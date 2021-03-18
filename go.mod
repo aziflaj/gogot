@@ -1,3 +1,3 @@
 module github.com/aziflaj/gogot
 
-go 1.15
+go 1.16

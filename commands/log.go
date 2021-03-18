@@ -3,7 +3,6 @@ package commands
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -48,32 +47,4 @@ func readCommitObjectContent(hash string) (treeHash string, author string, messa
 	author = strings.Split(contents[1], " ")[1]
 	message = contents[3]
 	return
-}
-
-func readObjectContent(hash string) string {
-	objectFile, err := os.Open(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, hash[0:2], hash[2:]))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	scanner := bufio.NewScanner(objectFile)
-	scanner.Split(bufio.ScanLines)
-	var contents []string
-	for scanner.Scan() {
-		contents = append(contents, scanner.Text())
-	}
-	objectFile.Close()
-
-	return strings.Join(contents, "\n")
-}
-
-func readBlobContent(hash string) []byte {
-	objectFile, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, hash[0:2], hash[2:]))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return objectFile
 }

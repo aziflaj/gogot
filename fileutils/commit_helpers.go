@@ -2,7 +2,6 @@ package fileutils
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -29,19 +28,21 @@ func CreateAndOpenCommitFile(hash string) (file *os.File, err error) {
 }
 
 func ReadCommitContents(hash string) (string, error) {
-	content, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:]))
+	filePath := fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:])
+	commitFile, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
 	if err != nil {
 		return "", nil
 	}
 
-	return string(content), nil
+	return FileContents(commitFile), nil
 }
 
 func ReadBlobContents(hash string) ([]byte, error) {
-	content, err := ioutil.ReadFile(fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:]))
+	blobPath := fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:])
+	blobFile, err := os.OpenFile(blobPath, os.O_RDONLY, 0644)
 	if err != nil {
 		return []byte{}, nil
 	}
 
-	return content, nil
+	return FileBytes(blobFile), nil
 }

@@ -33,30 +33,22 @@ func Init(args []string) {
 	fmt.Printf("Gogot repo initialized in %s\n", baseRepoPath)
 }
 
-func createObjectsDir() error {
+func createObjectsDir() {
 	infoDir := fmt.Sprintf("%s/info", fileutils.ObjectsDir)
 	packDir := fmt.Sprintf("%s/pack", fileutils.ObjectsDir)
 
-	var err error
-
-	err = os.MkdirAll(fileutils.ObjectsDir, 0755)
-	err = os.MkdirAll(infoDir, 0755)
-	err = os.MkdirAll(packDir, 0755)
-
-	return err
+	os.MkdirAll(fileutils.ObjectsDir, 0755)
+	os.MkdirAll(infoDir, 0755)
+	os.MkdirAll(packDir, 0755)
 }
 
-func createRefsDir() error {
+func createRefsDir() {
 	headsDir := fmt.Sprintf("%s/heads", fileutils.RefsDir)
 	tagsDir := fmt.Sprintf("%s/tags", fileutils.RefsDir)
 
-	var err error
-
-	err = os.MkdirAll(fileutils.RefsDir, 0755)
-	err = os.MkdirAll(headsDir, 0755)
-	err = os.MkdirAll(tagsDir, 0755)
-
-	return err
+	os.MkdirAll(fileutils.RefsDir, 0755)
+	os.MkdirAll(headsDir, 0755)
+	os.MkdirAll(tagsDir, 0755)
 }
 
 func initializeHead() {

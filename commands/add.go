@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -24,7 +23,18 @@ func Add(args []string) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+    
+    // was master
+//     if info.IsDir() {
+// 		files, _ := os.ReadDir(filepath)
+// 		for _, file := range files {
+// 			if file.Name() == fileutils.GogotDir {
+// 				continue
+// 			}
+// 			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
+//     }
 
+    // was feature/status
 		for _, file := range filesInPath {
 			addFile(file)
 		}
@@ -32,11 +42,13 @@ func Add(args []string) {
 }
 
 func addFile(path string) {
-	content, err := ioutil.ReadFile(path)
+	file, err := os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	content := fileutils.FileBytes(file)
 
 	hash := core.HashBytes(content)
 	blob := core.CompressBytes(content)
