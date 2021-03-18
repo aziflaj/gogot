@@ -10,9 +10,6 @@ import (
 )
 
 // Status ...
-// TODO: Add the following as feature requests:
-// gogot rm <file>          - opposite of gogot add
-// gogot rollback <file>    - persistent time-machine (last commit)
 func Status(args []string) {
 	branch, err := currentBranch()
 	if err != nil {
@@ -30,7 +27,8 @@ func Status(args []string) {
 
 	if len(stagedFiles) > 0 {
 		fmt.Println("Files to be committed:")
-		fmt.Println("    (use \"gogot rollback <file>\") to unstage")
+		// TODO: Actually implement this
+		// fmt.Println("    (use \"gogot rollback <file>\") to unstage")
 		for _, file := range stagedFiles {
 			fmt.Printf("\t%s\n", file)
 		}
@@ -81,10 +79,11 @@ nextPath:
 		untrackedFiles = append(untrackedFiles, filePath)
 	}
 
-	// tracked files, unindexed (prev commit, not in index)
 	fmt.Println("Files not added to index:")
-	fmt.Println("    (use \"gogot add/rm <file>\") to update what will be committed")
-	fmt.Println("    (use \"gogot rollback <file>\") to unstage")
+	fmt.Println("    (use \"gogot add <path>\") to include in the commit")
+	// TODO: the following functionalities
+	// fmt.Println("    (use \"gogot add/rm <file>\") to update what will be committed")
+	// fmt.Println("    (use \"gogot rollback <file>\") to unstage")
 	for _, file := range trackedFiles {
 		fmt.Printf("\t%s\n", file)
 	}
@@ -93,7 +92,7 @@ nextPath:
 
 	// untracked files (they shouldn't be in the prev commit)
 	fmt.Println("Untracked files:")
-	fmt.Println("    (use \"gogot add <file>\") to include in the commit")
+	fmt.Println("    (use \"gogot add <path>\") to include in the commit")
 	for _, file := range untrackedFiles {
 		fmt.Printf("\t%s\n", file)
 	}

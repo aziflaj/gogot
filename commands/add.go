@@ -23,18 +23,7 @@ func Add(args []string) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-    
-    // was master
-//     if info.IsDir() {
-// 		files, _ := os.ReadDir(filepath)
-// 		for _, file := range files {
-// 			if file.Name() == fileutils.GogotDir {
-// 				continue
-// 			}
-// 			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
-//     }
 
-    // was feature/status
 		for _, file := range filesInPath {
 			addFile(file)
 		}
