@@ -70,11 +70,11 @@ func appendToIndexFile(hash string, path string) {
 	defer f.Close()
 
 	found := false
+
 	indexedPaths := fileutils.ReadLines(f)
 
 	for idx, hashIndex := range indexedPaths {
 		hashAndPath := strings.Split(hashIndex, " ")
-		fmt.Println(hashAndPath)
 		if hashAndPath[1] == path {
 			// already in index, update
 			indexedPaths[idx] = fmt.Sprintf("%s %s", hash, path)
