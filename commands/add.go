@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/fileutils"
@@ -46,7 +47,7 @@ func addFile(path string) {
 	blobPath := fmt.Sprintf("%s/%s", blobDir, hash[2:])
 	createBlobFile(blobPath, blob)
 
-	appendToIndexFile(fmt.Sprintf("%s %s\n", hash, path))
+	appendToIndexFile(hash, path)
 }
 
 func createBlobFile(path string, content []byte) {
@@ -60,16 +61,37 @@ func createBlobFile(path string, content []byte) {
 	file.Write(content)
 }
 
-func appendToIndexFile(index string) {
-	f, err := os.OpenFile(fileutils.IndexFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func appendToIndexFile(hash string, path string) {
+	f, err := os.OpenFile(fileutils.IndexFilePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer f.Close()
 
-	if _, err := f.WriteString(index); err != nil {
-		log.Println(err)
-		os.Exit(1)
+	found := false
+	indexedPaths := fileutils.ReadLines(f)
+
+	for idx, hashIndex := range indexedPaths {
+		hashAndPath := strings.Split(hashIndex, " ")
+		fmt.Println(hashAndPath)
+		if hashAndPath[1] == path {
+			// already in index, update
+			indexedPaths[idx] = fmt.Sprintf("%s %s", hash, path)
+			found = true
+		}
+	}
+
+	if !found {
+		indexedPaths = append(indexedPaths, fmt.Sprintf("%s %s", hash, path))
+	}
+
+	f.Seek(0, 0)
+
+	for _, hashIndex := range indexedPaths {
+		if _, err := f.WriteString(hashIndex + "\n"); err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
 	}
 }
