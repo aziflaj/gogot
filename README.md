@@ -24,27 +24,88 @@ Initalizing new Gogot repo
 Gogot repo initialized in kewl-projekt/.gogot
 
 $ cd kewl-projekt
-$ mv ../gogot . # Or add it to path, that's a better idea
-
 $ touch hello.txt
-$ ./gogot add .
-$ ./gogot commit Initial commit
+$ ../gogot add .
+$ ../gogot commit Initial commit
 
 $ echo "Howdy y'all" >> hello.txt
-$ ./gogot add .
-$ ./gogot commit Greetings in hello.txt
+$ ../gogot add .
+$ ../gogot commit Greetings in hello.txt
 
 $ echo "How's everyone doin'?" >> hello.txt
-$ ./gogot add .
-$ ./gogot commit Greetings extended...
+$ ../gogot add .
+$ ../gogot commit Greetings extended...
 
-$ ./gogot log
+$ ../gogot log
 Logs on branch main
-jqF2823Ila5NwJHzU-4K40LpaLM=    (author aldo)    Initial commit
-7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0=    (author aldo)    Greetings in hello.txt
-DbUW6I6h3xfLlvDbqweqlDYcRuM=    (author aldo)    Greetings extended...
+-jr-up5Sz32qNHjlxn_qsj367vc=    (author aldo)    Initial commit
+S7CM7poOCDq6wSTqNL9g0uOTXrQ=    (author aldo)    Greetings in hello.txt
+jYQ5y4BvBhv_n8FDSi0o0JHcsWk=    (author aldo)    Greetings extended...
 
-$ ./gogot time-machine 7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0= ./hello.txt
+$ ../gogot status
+On branch main
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+nothing to commit, working tree clean
+
+
+$ touch SchrodingersCat
+$ echo -n -e \\x61\\x6c\\x69\\x76\\x65 > SchrodingersCat
+$ echo "Me myself, I'm doin' fine!" >> hello.txt
+$ touch answers
+$ echo 42 >> answers
+$ ../gogot status
+On branch main
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+	./hello.txt
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+	./SchrodingersCat
+	./answers
+
+$ ../gogot add ./answers
+$  ../gogot status
+On branch main
+Files to be committed:
+	./answers
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+	./hello.txt
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+	./SchrodingersCat
+
+$ ../gogot add .
+$ ../gogot status
+On branch main
+Files to be committed:
+	./answers
+	./SchrodingersCat
+	./hello.txt
+
+$ ../gogot commit A bunch of added files
+$ ../gogot status
+On branch main
+
+nothing to commit, working tree clean
+
+$ ../gogot log
+Logs on branch main
+-jr-up5Sz32qNHjlxn_qsj367vc=    (author aldo)    Initial commit
+S7CM7poOCDq6wSTqNL9g0uOTXrQ=    (author aldo)    Greetings in hello.txt
+jYQ5y4BvBhv_n8FDSi0o0JHcsWk=    (author aldo)    Greetings extended...
+MieNw-fi1H0XbdhOLBmrd7cwmP4=    (author aldo)    A bunch of added files
+
+$ ../gogot time-machine jYQ5y4BvBhv_n8FDSi0o0JHcsWk= ./hello.txt
 Howdy y'all
 
 $ cat hello.txt
