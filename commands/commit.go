@@ -15,15 +15,13 @@ import (
 // Commit ...
 func Commit(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot commit <message>")
-		os.Exit(1)
+		log.Fatal("Usage: gogot commit <message>")
 	}
 
 	indexTree := buildIndexTree()
 	rootHash, err := indexTree.BuildObjectTree("root")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	commitHash := buildCommitObject(rootHash, strings.Join(args, " "))
@@ -34,8 +32,7 @@ func Commit(args []string) {
 func buildIndexTree() *core.IndexTree {
 	indexFile, err := os.Open(fileutils.IndexFilePath)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	indexTree := core.BuildIndexFromFile(indexFile)
@@ -49,8 +46,7 @@ func buildCommitObject(treeHash string, commitMsg string) string {
 	commit := core.NewCommitObject(treeHash, committer, commitMsg)
 	err := commit.Commit()
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	return commit.ID
@@ -59,15 +55,13 @@ func buildCommitObject(treeHash string, commitMsg string) string {
 func updateRef(hash string) {
 	ref, err := fileutils.CurrentRef()
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	branchPath := fmt.Sprintf("%s/%s", fileutils.GogotDir, ref)
 	branchFile, err := os.OpenFile(branchPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	branchFile.WriteString(hash + "\n")
@@ -84,8 +78,7 @@ func currentUser() string {
 	whoami.Stdout = &out
 	err := whoami.Run()
 	if err != nil {
-		fmt.Println("Can't read user name")
-		os.Exit(1)
+		log.Fatal("Can't read user name")
 	}
 
 	return strings.Split(out.String(), "\n")[0]

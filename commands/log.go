@@ -3,6 +3,7 @@ package commands
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -13,8 +14,7 @@ import (
 func Log(args []string) {
 	commitsFile, err := fileutils.CurrentBranchCommitsFile()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 	defer commitsFile.Close()
 
@@ -31,8 +31,7 @@ func Log(args []string) {
 func readCommitObjectContent(hash string) (treeHash string, author string, message string) {
 	objectFile, err := os.Open(fmt.Sprintf("%s/%s/%s", fileutils.ObjectsDir, hash[0:2], hash[2:]))
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	scanner := bufio.NewScanner(objectFile)

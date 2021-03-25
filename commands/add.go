@@ -13,15 +13,13 @@ import (
 // Add ...
 func Add(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot add <path1> [<path2>] ...")
-		os.Exit(1)
+		log.Fatal("Usage: gogot add <path1> [<path2>] ...")
 	}
 
 	for _, path := range args {
 		filesInPath, err := fileutils.AllPaths(path)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 
 		for _, file := range filesInPath {
@@ -33,8 +31,7 @@ func Add(args []string) {
 func addFile(path string) {
 	file, err := os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	content := fileutils.FileBytes(file)
@@ -54,8 +51,7 @@ func addFile(path string) {
 func createBlobFile(path string, content []byte) {
 	file, err := os.Create(path)
 	if err != nil {
-		fmt.Println("Some error occurred while creating blob for " + path)
-		os.Exit(1)
+		log.Fatalf("Some error occurred while creating blob for %s", path)
 	}
 	defer file.Close()
 
@@ -91,8 +87,7 @@ func appendToIndexFile(hash string, path string) {
 
 	for _, hashIndex := range indexedPaths {
 		if _, err := f.WriteString(hashIndex + "\n"); err != nil {
-			log.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 	}
 }
