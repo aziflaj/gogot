@@ -1,0 +1,8 @@
+services:
+  - docker
+
+install:
+  - docker build -t gogot/test_suite -f ./test_suite/Dockerfile .
+  
+script:
+  - docker run gogot/test_suite

@@ -15,7 +15,7 @@ RUN GOOS=linux go build
 
 # Start a new stage from scratch
 FROM ruby:3.0.0-alpine
-RUN apk --no-cache add ca-certificates
+RUN apk update
 
 WORKDIR /tests
 COPY ./test_suite/ .
