@@ -1,64 +1,40 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"path"
+	"strings"
 
 	"github.com/aziflaj/gogot/core"
 	"github.com/aziflaj/gogot/fileutils"
 )
 
 // Add ...
-// TODO: Can't add a single file. Make a fix
 func Add(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot add <path1> [<path2>] ...")
-		os.Exit(1)
+		log.Fatal("Usage: gogot add <path1> [<path2>] ...")
 	}
 
-	for _, filepath := range args {
-		addRecursive(filepath)
-	}
-}
-
-func addRecursive(filepath string) {
-	patterns := ignoredPatterns()
-	for _, pattern := range patterns {
-		if match, _ := path.Match(pattern, filepath); match {
-			return
+	for _, path := range args {
+		filesInPath, err := fileutils.AllPaths(path)
+		if err != nil {
+			log.Fatal(err)
 		}
-	}
 
-	info, err := os.Stat(filepath)
-	if os.IsNotExist(err) {
-		fmt.Printf("File doesn't exist: %v\n", filepath)
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	if info.IsDir() {
-		files, _ := ioutil.ReadDir(filepath)
-		for _, file := range files {
-			if file.Name() == fileutils.GogotDir {
-				continue
-			}
-			addRecursive(fmt.Sprintf("%s/%s", filepath, file.Name()))
+		for _, file := range filesInPath {
+			addFile(file)
 		}
-	} else {
-		addFile(filepath)
 	}
 }
 
 func addFile(path string) {
-	content, err := ioutil.ReadFile(path)
+	file, err := os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
+
+	content := fileutils.FileBytes(file)
 
 	hash := core.HashBytes(content)
 	blob := core.CompressBytes(content)
@@ -69,46 +45,49 @@ func addFile(path string) {
 	blobPath := fmt.Sprintf("%s/%s", blobDir, hash[2:])
 	createBlobFile(blobPath, blob)
 
-	appendToIndexFile(fmt.Sprintf("%s %s\n", hash, path))
+	appendToIndexFile(hash, path)
 }
 
 func createBlobFile(path string, content []byte) {
 	file, err := os.Create(path)
 	if err != nil {
-		fmt.Println("Some error occurred while creating blob for " + path)
-		os.Exit(1)
+		log.Fatalf("Some error occurred while creating blob for %s", path)
 	}
 	defer file.Close()
 
 	file.Write(content)
 }
 
-func appendToIndexFile(index string) {
-	f, err := os.OpenFile(fileutils.IndexFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func appendToIndexFile(hash string, path string) {
+	f, err := os.OpenFile(fileutils.IndexFilePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer f.Close()
 
-	if _, err := f.WriteString(index); err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-}
+	found := false
 
-func ignoredPatterns() (paths []string) {
-	objectFile, err := os.Open(fileutils.GogotIgnore)
-	if err != nil {
-		return
+	indexedPaths := fileutils.ReadLines(f)
+
+	for idx, hashIndex := range indexedPaths {
+		hashAndPath := strings.Split(hashIndex, " ")
+		if hashAndPath[1] == path {
+			// already in index, update
+			indexedPaths[idx] = fmt.Sprintf("%s %s", hash, path)
+			found = true
+		}
 	}
 
-	scanner := bufio.NewScanner(objectFile)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		paths = append(paths, scanner.Text())
+	if !found {
+		indexedPaths = append(indexedPaths, fmt.Sprintf("%s %s", hash, path))
 	}
-	objectFile.Close()
 
-	return
+	f.Seek(0, 0)
+
+	for _, hashIndex := range indexedPaths {
+		if _, err := f.WriteString(hashIndex + "\n"); err != nil {
+			log.Fatal(err)
+		}
+	}
 }

@@ -4,8 +4,8 @@
 Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-git-in-ruby) titled **"Rebuilding Git in Ruby"**, I made a similar program but in Go. Not really a full copy of Git, rather more like an attempt to understand how Git stores and manages file contents. The features supported (so far) are these:
 
 - [x] `.gogotignore` - Similar to `.gitignore`
-- [x] `gogot init [PATH]` - Similar to `git init [PATH]`
-- [x] `gogot add [FILE1] [FILE2] [PATH]` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
+- [x] `gogot init [PATH]` - Similar to `git init [PATH]`, it initializes a repo with a default `main` branch
+- [x] `gogot add [PATH1] [PATH2] ...` - Similar to `git add ...`. Right now there's no support for `gogot add -A|--all`, but `gogot add .` does the trick
 - [x] `gogot commit [MESSAGE]` - Similar to `git commit -m "[MESSAGE]"`; gogot doesn't require quotes
 - [x] `gogot log` - Similar to `git log --oneline`; more condensed and quicker to write
 - [x] `gogot time-machine [COMMIT-ID] [FILE-PATH]`- I don't know the Git equivalent of this, but it prints the content of a given file in the specified commit
@@ -17,34 +17,95 @@ Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-
 
 Here's a sample run:
 
-```bash
+```bash 
 $ go build
 $ ./gogot init kewl-projekt # You can also do `gogot init .`
 Initalizing new Gogot repo
 Gogot repo initialized in kewl-projekt/.gogot
 
 $ cd kewl-projekt
-$ mv ../gogot . # Or add it to path, that's a better idea
-
 $ touch hello.txt
-$ ./gogot add .
-$ ./gogot commit Initial commit
+$ ../gogot add .
+$ ../gogot commit Initial commit
 
 $ echo "Howdy y'all" >> hello.txt
-$ ./gogot add .
-$ ./gogot commit Greetings in hello.txt
+$ ../gogot add .
+$ ../gogot commit Greetings in hello.txt
 
 $ echo "How's everyone doin'?" >> hello.txt
-$ ./gogot add .
-$ ./gogot commit Greetings extended...
+$ ../gogot add .
+$ ../gogot commit Greetings extended...
 
-$ ./gogot log
+$ ../gogot log
 Logs on branch main
-jqF2823Ila5NwJHzU-4K40LpaLM=    (author aldo)    Initial commit
-7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0=    (author aldo)    Greetings in hello.txt
-DbUW6I6h3xfLlvDbqweqlDYcRuM=    (author aldo)    Greetings extended...
+-jr-up5Sz32qNHjlxn_qsj367vc=    (author aldo)    Initial commit
+S7CM7poOCDq6wSTqNL9g0uOTXrQ=    (author aldo)    Greetings in hello.txt
+jYQ5y4BvBhv_n8FDSi0o0JHcsWk=    (author aldo)    Greetings extended...
 
-$ ./gogot time-machine 7g7D7vGQdZ-xJ2_7Aw0MVw2eDn0= ./hello.txt
+$ ../gogot status
+On branch main
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+nothing to commit, working tree clean
+
+
+$ touch SchrodingersCat
+$ echo -n -e \\x61\\x6c\\x69\\x76\\x65 > SchrodingersCat
+$ echo "Me myself, I'm doin' fine!" >> hello.txt
+$ touch answers
+$ echo 42 >> answers
+$ ../gogot status
+On branch main
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+	./hello.txt
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+	./SchrodingersCat
+	./answers
+
+$ ../gogot add ./answers
+$  ../gogot status
+On branch main
+Files to be committed:
+	./answers
+
+Files not added to index:
+    (use "gogot add <path>") to include in the commit
+	./hello.txt
+
+Untracked files:
+    (use "gogot add <path>") to include in the commit
+	./SchrodingersCat
+
+$ ../gogot add .
+$ ../gogot status
+On branch main
+Files to be committed:
+	./answers
+	./SchrodingersCat
+	./hello.txt
+
+$ ../gogot commit A bunch of added files
+$ ../gogot status
+On branch main
+
+nothing to commit, working tree clean
+
+$ ../gogot log
+Logs on branch main
+-jr-up5Sz32qNHjlxn_qsj367vc=    (author aldo)    Initial commit
+S7CM7poOCDq6wSTqNL9g0uOTXrQ=    (author aldo)    Greetings in hello.txt
+jYQ5y4BvBhv_n8FDSi0o0JHcsWk=    (author aldo)    Greetings extended...
+MieNw-fi1H0XbdhOLBmrd7cwmP4=    (author aldo)    A bunch of added files
+
+$ ../gogot time-machine jYQ5y4BvBhv_n8FDSi0o0JHcsWk= ./hello.txt
 Howdy y'all
 
 $ cat hello.txt

@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"io"
 	"strings"
+	"time"
 )
 
 func HashBytes(content []byte) string {
@@ -15,6 +16,10 @@ func HashBytes(content []byte) string {
 	sha1Bytes := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 
 	return string(sha1Bytes)
+}
+
+func TimedHash(content string) string {
+	return HashBytes([]byte(time.Now().String() + content))
 }
 
 func CompressBytes(content []byte) []byte {

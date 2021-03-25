@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/aziflaj/gogot/fileutils"
@@ -10,8 +11,7 @@ import (
 // Init ...
 func Init(args []string) {
 	if len(args) < 1 {
-		fmt.Println("Usage: gogot init <path>")
-		os.Exit(1)
+		log.Fatal("Usage: gogot init <path>")
 	}
 
 	repoName := args[0]
@@ -19,44 +19,30 @@ func Init(args []string) {
 	fmt.Println("Initalizing new Gogot repo")
 
 	baseRepoPath := fmt.Sprintf("%s/%s", repoName, fileutils.GogotDir)
-	err := os.MkdirAll(baseRepoPath, 0755)
-	if err != nil {
-		fmt.Print(err)
-		fmt.Println("Repo already exists")
-		os.Exit(1)
-	}
-
+	os.MkdirAll(baseRepoPath, 0755)
 	createObjectsDir()
 	createRefsDir()
 	initializeHead()
 
-	fmt.Printf("Gogot repo initialized in %s\n", baseRepoPath)
+	log.Printf("Gogot repo initialized in %s\n", baseRepoPath)
 }
 
-func createObjectsDir() error {
+func createObjectsDir() {
 	infoDir := fmt.Sprintf("%s/info", fileutils.ObjectsDir)
 	packDir := fmt.Sprintf("%s/pack", fileutils.ObjectsDir)
 
-	var err error
-
-	err = os.MkdirAll(fileutils.ObjectsDir, 0755)
-	err = os.MkdirAll(infoDir, 0755)
-	err = os.MkdirAll(packDir, 0755)
-
-	return err
+	os.MkdirAll(fileutils.ObjectsDir, 0755)
+	os.MkdirAll(infoDir, 0755)
+	os.MkdirAll(packDir, 0755)
 }
 
-func createRefsDir() error {
+func createRefsDir() {
 	headsDir := fmt.Sprintf("%s/heads", fileutils.RefsDir)
 	tagsDir := fmt.Sprintf("%s/tags", fileutils.RefsDir)
 
-	var err error
-
-	err = os.MkdirAll(fileutils.RefsDir, 0755)
-	err = os.MkdirAll(headsDir, 0755)
-	err = os.MkdirAll(tagsDir, 0755)
-
-	return err
+	os.MkdirAll(fileutils.RefsDir, 0755)
+	os.MkdirAll(headsDir, 0755)
+	os.MkdirAll(tagsDir, 0755)
 }
 
 func initializeHead() {
@@ -70,7 +56,6 @@ func initializeHead() {
 }
 
 func cleanup() {
-	fmt.Println("Something went wrong")
 	os.RemoveAll(fileutils.GogotDir)
-	os.Exit(1)
+	log.Fatal("Something went wrong")
 }
