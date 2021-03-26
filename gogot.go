@@ -6,10 +6,12 @@ import (
 
 	"github.com/aziflaj/gogot/commands"
 	"github.com/aziflaj/gogot/fileutils"
+	"github.com/aziflaj/gogot/logger"
 )
 
 func main() {
-	log.SetFlags(0)
+	logger.SetupLogger()
+
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: gogot <command> [<args>]")
 	}

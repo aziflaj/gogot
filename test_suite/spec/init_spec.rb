@@ -1,13 +1,22 @@
 RSpec.describe "init" do
-  it "requires a path" do
-    output = `gogot init`
+  let!(:command_result) { `#{command}` }
 
-    expect(output).to include("Usage: gogot init <path>")
+  context "without a path" do
+    let(:command) { %(gogot init) }
+
+    it "prints usage information" do
+      expect(command_result).to include(('Usage: gogot init <path>'))
+    end
   end
 
-  it "creates the directory if missing" do
-    output = `rm -rf ./kewl-projekt; gogot init kewl-projekt`
-    
-    expect(output).to include("Gogot repo initialized in kewl-projekt/.gogot")    
+  context 'with missing directory' do
+    let(:command) { %(gogot init kewl-projekt) }
+
+    before { system('rm -rf ./kewl-projekt') }
+
+    it "creates the directory if missing" do
+      expect(command_result).to include("Initalizing new Gogot repo")
+      expect(command_result).to include("Gogot repo initialized in kewl-projekt/.gogot")
+    end
   end
 end
