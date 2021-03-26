@@ -76,3 +76,6 @@ RSpec/MultipleExpectations:
 
 RSpec/DescribeClass:
   Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
