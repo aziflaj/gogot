@@ -17,9 +17,12 @@ RUN GOOS=linux go build
 FROM ruby:3.0.0-alpine
 RUN apk update
 
+ENV RUBYOPT --enable-frozen-string-literal
+
 WORKDIR /tests
 COPY ./test_suite/ .
 RUN bundler install
+RUN bundler exec rubocop
 
 # # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /gogot-src/gogot /usr/bin/gogot

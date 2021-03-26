@@ -1,4 +1,4 @@
 #!/bin/sh
 
-exec docker build . -t gogot-tests -f ./test_suite/Dockerfile
-exec docker run -it gogot-tests
+docker build -t gogot/test_suite -f ./test_suite/Dockerfile .
+docker run -it gogot/test_suite
