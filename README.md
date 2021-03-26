@@ -1,6 +1,8 @@
 # Gogot
 ### Git, but in Go
 
+[![Build Status](https://travis-ci.com/aziflaj/gogot.svg?branch=main)](https://travis-ci.com/aziflaj/gogot)
+
 Inspired by [this article by ThoughtBot](https://thoughtbot.com/blog/rebuilding-git-in-ruby) titled **"Rebuilding Git in Ruby"**, I made a similar program but in Go. Not really a full copy of Git, rather more like an attempt to understand how Git stores and manages file contents. The features supported (so far) are these:
 
 - [x] `.gogotignore` - Similar to `.gitignore`
