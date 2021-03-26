@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -13,8 +14,7 @@ import (
 func Status(args []string) {
 	branch, err := currentBranch()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("On branch %s\n", branch)
@@ -38,14 +38,12 @@ func Status(args []string) {
 
 	commits, err := commitsInBranch()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	paths, err := fileutils.AllPaths(".")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	var trackedFiles, untrackedFiles []string
@@ -61,8 +59,7 @@ nextPath:
 		for _, commit := range commits {
 			commitTree, err := core.BuildIndexFromCommit(commit.TreeHash, ".")
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				log.Fatal(err)
 			}
 
 			child := commitTree.FindChildByPath(filePath)

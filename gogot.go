@@ -1,24 +1,25 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/aziflaj/gogot/commands"
 	"github.com/aziflaj/gogot/fileutils"
+	"github.com/aziflaj/gogot/logger"
 )
 
 func main() {
+	logger.SetupLogger()
+
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: gogot <command> [<args>]")
-		os.Exit(1)
+		log.Fatal("Usage: gogot <command> [<args>]")
 	}
 
 	command, args := os.Args[1], os.Args[2:]
 
 	if _, err := os.Stat(fileutils.GogotDir); os.IsNotExist(err) && command != "init" {
-		fmt.Println("Not a Gogot repository")
-		os.Exit(1)
+		log.Fatal("Not a Gogot repository")
 	}
 
 	switch command {
@@ -35,7 +36,6 @@ func main() {
 	case "status":
 		commands.Status(args)
 	default:
-		fmt.Printf("Unknown command: %v\n", command)
-		os.Exit(1)
+		log.Fatalf("Unknown command: %v\n", command)
 	}
 }
