@@ -82,3 +82,6 @@ Metrics/BlockLength:
 
 RSpec/ExampleLength:
   Enabled: false
+
+Style/ParallelAssignment:
+  Enabled: false
