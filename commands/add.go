@@ -47,7 +47,7 @@ func addFile(path string) {
 	appendToIndexFile(hash, path)
 }
 
-func createBlobFile(path string, content []byte) {
+func createBlobFile(path string, content string) {
 	file, err := os.Create(path)
 	if err != nil {
 		log.Printf("Some error occurred while creating blob for %s", path)
@@ -55,7 +55,7 @@ func createBlobFile(path string, content []byte) {
 	}
 	defer file.Close()
 
-	file.Write(content)
+	file.WriteString(content)
 }
 
 func appendToIndexFile(hash string, path string) {

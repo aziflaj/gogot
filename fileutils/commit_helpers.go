@@ -37,12 +37,12 @@ func ReadCommitContents(hash string) (string, error) {
 	return FileContents(commitFile), nil
 }
 
-func ReadBlobContents(hash string) ([]byte, error) {
+func ReadBlobContents(hash string) (string, error) {
 	blobPath := fmt.Sprintf("%s/%s/%s", ObjectsDir, hash[0:2], hash[2:])
 	blobFile, err := os.OpenFile(blobPath, os.O_RDONLY, 0644)
 	if err != nil {
-		return []byte{}, nil
+		return "", nil
 	}
 
-	return FileBytes(blobFile), nil
+	return FileContents(blobFile), nil
 }
