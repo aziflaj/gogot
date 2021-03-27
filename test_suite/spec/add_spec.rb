@@ -17,85 +17,90 @@ RSpec.describe 'Adding files' do
     end
   end
 
-  context 'when the repo is new' do
-    describe 'adding a file' do
-      let(:command) { `gogot add ./#{filename}` }
-      let(:filename) { 'hello.txt' }
+  describe 'adding a file' do
+    let(:command) { `gogot add ./#{filename}` }
+    let(:filename) { 'hello.txt' }
 
-      before do
-        File.open(filename, 'w+') { |f| f.write("Howdy y'all") }
+    before do
+      File.open(filename, 'w+') { |f| f.write("Howdy y'all") }
 
-        command
-      end
-
-      it 'creates an index' do
-        expect(indexes.count).to eq(1)
-        _, filepath = indexes[0].split
-
-        expect(filepath).to eq('./hello.txt')
-      end
-
-      it 'generates blob' do
-        expect(indexes.count).to eq(1)
-        hash, = indexes[0].split
-
-        expect(File).to exist(".gogot/objects/#{hash[0..1]}/#{hash[2..]}")
-      end
+      command
     end
 
-    describe 'adding a directory' do
-      before do
-        File.open('file1.txt', 'w+') { |f| f.write('Test File 1') }
+    it 'creates an index' do
+      expect(indexes.count).to eq(1)
+      _, filepath = indexes[0].split
 
-        Dir.mkdir('testdir')
-        File.open('testdir/file11.txt', 'w+') { |f| f.write('Test File 11 in testdir') }
-        File.open('testdir/file12.txt', 'w+') { |f| f.write('Test File 12 in testdir') }
-        File.open('testdir/file13.txt', 'w+') { |f| f.write('Test File 13 in testdir') }
+      expect(filepath).to eq("./#{filename}")
+    end
 
-        Dir.mkdir('testdir/tester-dir')
-        File.open('testdir/tester-dir/file11.txt', 'w+') { |f| f.write('Test File 11 in tester-dir') }
-        File.open('testdir/tester-dir/file12.txt', 'w+') { |f| f.write('Test File 12 in tester-dir') }
-        File.open('testdir/tester-dir/file13.txt', 'w+') { |f| f.write('Test File 13 in tester-dir') }
+    it 'generates blob' do
+      expect(indexes.count).to eq(1)
+      hash, = indexes[0].split
 
-        Dir.mkdir('testdir2')
-        File.open('testdir2/file21.txt', 'w+') { |f| f.write('Test File 21 in testdir2') }
-        File.open('testdir2/file22.txt', 'w+') { |f| f.write('Test File 22 in testdir2') }
-        File.open('testdir2/file23.txt', 'w+') { |f| f.write('Test File 23 in testdir2') }
-      end
-
-      it 'adds dirs recursively to index' do
-        `gogot add .`
-
-        expect(indexes.count).to eq(1 + 3 + 3 + 3)
-      end
-
-      it 'add multiple dirs recursively' do
-        `gogot add ./testdir/tester-dir ./testdir2`
-
-        expect(indexes.count).to eq(3 + 3)
-      end
+      expect(File).to exist(".gogot/objects/#{hash[0..1]}/#{hash[2..]}")
     end
   end
 
-  # context 'in existing repo' do
-  #   it 'appends to index'
-  # end
+  describe 'adding a directory' do
+    before do
+      File.open('file1.txt', 'w+') { |f| f.write('Test File 1') }
 
-  # context 'with ignore file' do
-  #   context 'is ignored file'
+      Dir.mkdir('testdir')
+      File.open('testdir/file11.txt', 'w+') { |f| f.write('Test File 11 in testdir') }
+      File.open('testdir/file12.txt', 'w+') { |f| f.write('Test File 12 in testdir') }
+      File.open('testdir/file13.txt', 'w+') { |f| f.write('Test File 13 in testdir') }
 
-  #   context 'is ignored dir'
-  # end
+      Dir.mkdir('testdir/tester-dir')
+      File.open('testdir/tester-dir/file11.txt', 'w+') { |f| f.write('Test File 11 in tester-dir') }
+      File.open('testdir/tester-dir/file12.txt', 'w+') { |f| f.write('Test File 12 in tester-dir') }
+      File.open('testdir/tester-dir/file13.txt', 'w+') { |f| f.write('Test File 13 in tester-dir') }
 
-  # context 'is stage-able'
+      Dir.mkdir('testdir2')
+      File.open('testdir2/file21.txt', 'w+') { |f| f.write('Test File 21 in testdir2') }
+      File.open('testdir2/file22.txt', 'w+') { |f| f.write('Test File 22 in testdir2') }
+      File.open('testdir2/file23.txt', 'w+') { |f| f.write('Test File 23 in testdir2') }
 
-  # context 'is a file' do
-  #   it 'generates hash'
-  #   it 'generates blob'
-  # end
+      Dir.mkdir('testdir3') # Empty dir shall be ignored
+    end
 
-  # context 'is a dir' do
-  #   context 'dir is empty'
-  #   context 'dir is not empty'
-  # end
+    context 'with ignore file' do
+      before do
+        File.open('.gogotignore', 'w+') do |f|
+          f.puts './testdir2'
+          f.puts './testdir/tester-dir/file11.txt'
+        end
+      end
+
+      it 'excludes directories from index' do
+        `gogot add .`
+
+        expect(indexes.join("\n")).not_to include('testdir2')
+      end
+
+      it 'excludes files from index' do
+        `gogot add .`
+
+        expect(indexes.join("\n")).not_to include('testdir/tester-dir/file11')
+      end
+    end
+
+    it 'ignores empty dirs' do
+      `gogot add .`
+
+      expect(indexes.join("\n")).not_to include('testdir3')
+    end
+
+    it 'adds dirs recursively to index' do
+      `gogot add .`
+
+      expect(indexes.count).to eq(1 + 3 + 3 + 3)
+    end
+
+    it 'add multiple dirs recursively' do
+      `gogot add ./testdir/tester-dir ./testdir2`
+
+      expect(indexes.count).to eq(3 + 3)
+    end
+  end
 end
