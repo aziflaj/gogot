@@ -12,9 +12,15 @@ import (
 
 // Log ...
 func Log(args []string) {
+	branchName, err := fileutils.CurrentBranch()
+	if err != nil {
+		log.Println("Nothing to log")
+		log.Fatal(err)
+	}
+
 	commitsFile, err := fileutils.CurrentBranchCommitsFile()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Nothing to log on branch %s", branchName)
 	}
 	defer commitsFile.Close()
 

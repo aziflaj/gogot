@@ -12,7 +12,7 @@ import (
 
 // Status ...
 func Status(args []string) {
-	branch, err := currentBranch()
+	branch, err := fileutils.CurrentBranch()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -123,17 +123,6 @@ func commitsInBranch() (commits []*core.CommitObject, err error) {
 	}
 
 	return
-}
-
-func currentBranch() (string, error) {
-	ref, err := fileutils.CurrentRef()
-	if err != nil {
-		return "", err
-	}
-
-	splitRef := strings.Split(ref, "/")
-
-	return splitRef[len(splitRef)-1], nil
 }
 
 func filesInIndex() (files []string, err error) {
