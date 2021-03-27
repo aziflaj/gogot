@@ -8,10 +8,10 @@ RUN mkdir /gogot-src
 WORKDIR /gogot-src
 
 COPY ./go.mod ./
-RUN go mod download 
+RUN go mod download
 COPY . .
 
-RUN GOOS=linux go build 
+RUN GOOS=linux go build
 
 # Start a new stage from scratch
 FROM ruby:3.0.0-alpine
