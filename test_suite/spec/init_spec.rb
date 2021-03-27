@@ -5,7 +5,7 @@ RSpec.describe 'Initializing a new Gogot repository' do
     let(:command) { %(gogot init) }
 
     it 'prints usage information' do
-      expect(command_result).to include(('Usage: gogot init <path>'))
+      expect(command_result).to include('Usage: gogot init <path>')
     end
   end
 

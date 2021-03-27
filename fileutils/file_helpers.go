@@ -10,9 +10,8 @@ import (
 // Memoizing this because of recursive AllPaths
 var GogotIgnorePatterns = IgnoredPatterns()
 
-func FileBytes(file *os.File) (content []byte) {
-	scanner := bufio.NewScanner(file)
-	return scanner.Bytes()
+func FileBytes(file *os.File) []byte {
+	return []byte(FileContents(file))
 }
 
 func FileContents(file *os.File) (content string) {

@@ -41,7 +41,6 @@ func addFile(path string) {
 
 	blobDir := fmt.Sprintf("%s/%s", fileutils.ObjectsDir, hash[0:2])
 	os.Mkdir(blobDir, 0755)
-
 	blobPath := fmt.Sprintf("%s/%s", blobDir, hash[2:])
 	createBlobFile(blobPath, blob)
 
@@ -51,7 +50,8 @@ func addFile(path string) {
 func createBlobFile(path string, content []byte) {
 	file, err := os.Create(path)
 	if err != nil {
-		log.Fatalf("Some error occurred while creating blob for %s", path)
+		log.Printf("Some error occurred while creating blob for %s", path)
+		log.Fatal(err)
 	}
 	defer file.Close()
 
@@ -61,13 +61,12 @@ func createBlobFile(path string, content []byte) {
 func appendToIndexFile(hash string, path string) {
 	f, err := os.OpenFile(fileutils.IndexFilePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 
 	defer f.Close()
 
 	found := false
-
 	indexedPaths := fileutils.ReadLines(f)
 
 	for idx, hashIndex := range indexedPaths {

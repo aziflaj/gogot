@@ -20,42 +20,55 @@ func Init(args []string) {
 
 	baseRepoPath := fmt.Sprintf("%s/%s", repoName, fileutils.GogotDir)
 	os.MkdirAll(baseRepoPath, 0755)
-	createObjectsDir()
-	createRefsDir()
-	initializeHead()
+	createObjectsDir(baseRepoPath)
+	createRefsDir(baseRepoPath)
+	initializeHead(baseRepoPath)
 
 	log.Printf("Gogot repo initialized in %s\n", baseRepoPath)
 }
 
-func createObjectsDir() {
-	infoDir := fmt.Sprintf("%s/info", fileutils.ObjectsDir)
-	packDir := fmt.Sprintf("%s/pack", fileutils.ObjectsDir)
+func createObjectsDir(basePath string) {
+	objectsDir := fmt.Sprintf("%s/objects", basePath) // Should use this: fileutils.ObjectsDir
+	infoDir := fmt.Sprintf("%s/info", objectsDir)
+	packDir := fmt.Sprintf("%s/pack", objectsDir)
 
-	os.MkdirAll(fileutils.ObjectsDir, 0755)
-	os.MkdirAll(infoDir, 0755)
-	os.MkdirAll(packDir, 0755)
+	err := os.Mkdir(objectsDir, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.MkdirAll(infoDir, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.MkdirAll(packDir, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func createRefsDir() {
-	headsDir := fmt.Sprintf("%s/heads", fileutils.RefsDir)
-	tagsDir := fmt.Sprintf("%s/tags", fileutils.RefsDir)
+func createRefsDir(basePath string) {
+	refsDir := fmt.Sprintf("%s/refs", basePath) // fileutils.RefsDir
+	headsDir := fmt.Sprintf("%s/heads", refsDir)
+	tagsDir := fmt.Sprintf("%s/tags", refsDir)
 
-	os.MkdirAll(fileutils.RefsDir, 0755)
+	os.MkdirAll(refsDir, 0755)
 	os.MkdirAll(headsDir, 0755)
 	os.MkdirAll(tagsDir, 0755)
 }
 
-func initializeHead() {
-	file, err := os.Create(fileutils.HeadFilePath)
+func initializeHead(basePath string) {
+	headFilePath := fmt.Sprintf("%s/HEAD", basePath)
+	file, err := os.Create(headFilePath) // fileutils.HeadFilePath
 	if err != nil {
-		cleanup()
+		cleanup(basePath)
 	}
 	defer file.Close()
 
 	file.WriteString("ref: refs/heads/main")
 }
 
-func cleanup() {
-	os.RemoveAll(fileutils.GogotDir)
+func cleanup(path string) {
+	// os.RemoveAll(fileutils.GogotDir)
+	os.RemoveAll(path)
 	log.Fatal("Something went wrong")
 }
