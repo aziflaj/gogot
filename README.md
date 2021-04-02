@@ -115,3 +115,5 @@ Howdy y'all
 How's everyone doin'?
 
 ```
+
+Read more about testing this [here](https://www.linkedin.com/pulse/testing-go-ruby-aldo-ziflaj/)
